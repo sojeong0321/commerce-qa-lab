@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>commerce-qa-lab 설계도</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+:root{
+  --ground:#F5F7F4;
+  --paper:#FFFFFF;
+  --ink:#1B2420;
+  --ink-soft:#4A5751;
+  --line:#D9E0DB;
+  --accent:#1F7A5A;
+  --accent-soft:#E2F1EA;
+  --fail:#B8412C;
+  --fail-soft:#F8E6E1;
+  --mark:#F3D46A;
+  --mark-ink:#3A2F05;
+  --shadow:0 1px 2px rgba(27,36,32,.06),0 4px 16px rgba(27,36,32,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#121815;--paper:#1A221E;--ink:#E6EDE9;--ink-soft:#A3B2AA;--line:#2E3A34;
+    --accent:#5CC49A;--accent-soft:#1D3329;--fail:#F08A74;--fail-soft:#3A221D;
+    --mark:#8A7422;--mark-ink:#FFF6D6;--shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#121815;--paper:#1A221E;--ink:#E6EDE9;--ink-soft:#A3B2AA;--line:#2E3A34;
+  --accent:#5CC49A;--accent-soft:#1D3329;--fail:#F08A74;--fail-soft:#3A221D;
+  --mark:#8A7422;--mark-ink:#FFF6D6;--shadow:none;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--ground);color:var(--ink);
+  font-family:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  font-size:16px;line-height:1.75;word-break:keep-all;
+  padding-inline:16px;padding-block:32px 72px;
+}
+.wrap{max-width:860px;margin-inline:auto;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{text-wrap:balance;line-height:1.35;margin:0}
+h1{font-size:clamp(28px,5vw,40px);font-weight:700;letter-spacing:-.02em}
+h2{font-size:clamp(22px,3.4vw,27px);font-weight:700;letter-spacing:-.01em}
+h3{font-size:18px;font-weight:700}
+p{margin:0}
+.label{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.lead{font-size:18px;color:var(--ink-soft);max-width:64ch}
+section{display:flex;flex-direction:column;gap:18px}
+section > p{max-width:66ch}
+mark{background:var(--mark);color:var(--mark-ink);padding:0 .2em;border-radius:3px}
+.muted{color:var(--ink-soft)}
+.small{font-size:14px}
+
+/* hero */
+header{display:flex;flex-direction:column;gap:16px;padding-bottom:28px;border-bottom:2px solid var(--ink)}
+.oneline{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:20px 22px;box-shadow:var(--shadow);font-size:18px}
+.oneline strong{color:var(--accent)}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:14px;color:var(--ink-soft)}
+
+/* analogy */
+.analogy{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.an{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:18px 20px;display:flex;flex-direction:column;gap:8px}
+.an .tag{font-size:13px;font-weight:700;color:var(--ink-soft)}
+.an.after .tag{color:var(--accent)}
+.an ul{margin:0;padding-left:1.1em}
+
+/* journey */
+.journey{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch}
+.step{flex:1 1 120px;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:4px}
+.step b{font-size:16px}
+.step .n{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--accent)}
+.step span{font-size:14px;color:var(--ink-soft);line-height:1.55}
+
+/* rules */
+.rules{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.rule{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:6px}
+.rule h3{font-size:16px}
+.rule p{font-size:15px;color:var(--ink-soft);line-height:1.65}
+.rule .who{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.06em;color:var(--accent)}
+.policy{border:2px dashed var(--accent);background:var(--accent-soft)}
+
+/* pyramid */
+.pyr{display:grid;grid-template-columns:minmax(0,300px) 1fr;gap:24px;align-items:center}
+.pyr svg{width:100%;height:auto;display:block}
+.layers{display:flex;flex-direction:column;gap:14px}
+.layer{display:grid;grid-template-columns:92px 1fr;gap:12px;align-items:start;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.layer:last-child{border-bottom:0;padding-bottom:0}
+.layer .nm{font-weight:700}
+.layer .nm small{display:block;font-weight:500;color:var(--ink-soft);font-size:13px}
+.layer p{font-size:15px}
+.layer .eg{font-size:14px;color:var(--ink-soft);margin-top:4px}
+
+.callout{background:var(--paper);border-left:4px solid var(--accent);padding:16px 20px;border-radius:0 10px 10px 0;max-width:none}
+.callout.warn{border-left-color:var(--fail)}
+
+/* table */
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--paper)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:15px}
+th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:13px;color:var(--ink-soft);font-weight:500;background:var(--ground)}
+tr:last-child td{border-bottom:0}
+.ok{color:var(--accent);font-weight:700}
+.no{color:var(--fail);font-weight:700}
+
+/* pipeline */
+.pipe{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pipe .p{background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:14px;font-weight:500}
+.pipe .arr{color:var(--ink-soft)}
+.lights{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.light{border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:6px}
+.light.g{background:var(--accent-soft)}
+.light.r{background:var(--fail-soft)}
+.light b{font-size:16px}
+.light.g b{color:var(--accent)}
+.light.r b{color:var(--fail)}
+
+/* evidence */
+.ev{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.evi{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:6px}
+.evi .like{font-size:13px;color:var(--accent);font-weight:700}
+.evi p{font-size:15px;color:var(--ink-soft);line-height:1.65}
+
+/* phases */
+.phases{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.phases li{display:grid;grid-template-columns:44px 1fr;gap:14px;padding:12px 0;border-bottom:1px solid var(--line)}
+.phases li:last-child{border-bottom:0}
+.phases .no-{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--ink-soft);padding-top:3px}
+.phases .t{font-weight:700}
+.phases .d{font-size:15px;color:var(--ink-soft)}
+.phases li.now .no-{color:var(--accent)}
+.phases li.now .t::after{content:"지금 여기";margin-left:8px;font-size:12px;font-weight:700;background:var(--accent);color:var(--paper);padding:2px 8px;border-radius:999px;vertical-align:2px}
+
+/* glossary */
+dl.gl{display:grid;grid-template-columns:repeat(2,1fr);gap:0 24px;margin:0}
+.gl div{padding:12px 0;border-bottom:1px solid var(--line)}
+.gl dt{font-weight:700}
+.gl dt small{font-family:"IBM Plex Mono",monospace;font-weight:500;color:var(--ink-soft);font-size:12px;margin-left:6px}
+.gl dd{margin:2px 0 0;font-size:15px;color:var(--ink-soft)}
+
+/* decisions */
+.dec{display:flex;flex-direction:column;gap:12px}
+.dq{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:18px 20px;display:flex;flex-direction:column;gap:6px}
+.dq .pick{font-size:14px;font-weight:700;color:var(--accent)}
+.dq p{font-size:15px;color:var(--ink-soft)}
+
+footer{border-top:2px solid var(--ink);padding-top:20px;font-size:15px;color:var(--ink-soft)}
+
+@media (max-width:640px){
+  .analogy,.rules,.lights,.ev,dl.gl{grid-template-columns:1fr}
+  .pyr{grid-template-columns:1fr}
+  .pyr svg{max-width:280px;margin-inline:auto}
+  .layer{grid-template-columns:1fr;gap:4px}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header>
+  <span class="label">Phase 0 · 설계 안내서</span>
+  <h1>commerce-qa-lab, 무엇을 만들고 어떻게 검사하는가</h1>
+  <p class="lead">코딩을 몰라도 읽을 수 있게 쉬운 말과 비유로 정리했습니다. 이 문서는 "앞으로 무엇을 만들지"를 설명하는 설계도이고, 아직 만든 것은 없습니다.</p>
+  <div class="oneline">
+    한 줄 요약: <strong>작은 온라인 쇼핑몰을 직접 만든 다음</strong>, 그 쇼핑몰이 제대로 동작하는지 <strong>검사 로봇(자동화 테스트)</strong>이 매번 대신 확인하게 만드는 프로젝트입니다.
+  </div>
+  <div class="meta"><span>작성일 2026-09-22</span><span>현재 단계: 설계 (Phase 0 / 10)</span></div>
+</header>
+
+<section>
+  <span class="label">왜 만드나</span>
+  <h2>손으로 하던 검사를 로봇에게 맡기는 연습</h2>
+  <p>지금까지 해 온 수동 QA는 사람이 직접 화면을 눌러 보며 "잘 되나?"를 확인하는 일입니다. QA 자동화 엔지니어는 그 확인 과정을 <mark>프로그램으로 적어 두고 컴퓨터가 반복하게</mark> 만듭니다. 채용 담당자에게 "이걸 실제로 할 줄 안다"는 걸 보여 주려면 진짜로 돌아가는 결과물이 있어야 합니다.</p>
+  <div class="analogy">
+    <div class="an">
+      <span class="tag">지금 (수동 QA)</span>
+      <ul>
+        <li>사람이 매번 쇼핑몰에 들어가 클릭</li>
+        <li>100개를 확인하려면 몇 시간</li>
+        <li>피곤하면 놓치는 게 생김</li>
+      </ul>
+    </div>
+    <div class="an after">
+      <span class="tag">목표 (자동화 QA)</span>
+      <ul>
+        <li>확인할 내용을 한 번 적어 두면 로봇이 반복</li>
+        <li>100개를 몇 분 안에 확인</li>
+        <li>매번 똑같이 꼼꼼하게, 실패하면 증거 사진도 남김</li>
+      </ul>
+    </div>
+  </div>
+  <p class="callout">검사할 대상이 없으면 검사를 보여 줄 수 없습니다. 그래서 <b>검사 대상이 될 작은 쇼핑몰부터 직접 만듭니다.</b> 남이 만든 연습용 사이트를 쓰지 않고 직접 만드는 이유는, 쇼핑몰 규칙을 우리가 정해야 "규칙대로 동작하는지"를 정확히 검사할 수 있기 때문입니다.</p>
+</section>
+
+<section>
+  <span class="label">무엇을 만드나 ①</span>
+  <h2>작은 쇼핑몰: 손님이 하는 일</h2>
+  <p>보통 온라인 쇼핑몰과 같습니다. 손님은 아래 순서로 움직입니다.</p>
+  <div class="journey">
+    <div class="step"><span class="n">1</span><b>상품 보기</b><span>진열대에서 가격과 남은 수량 확인</span></div>
+    <div class="step"><span class="n">2</span><b>장바구니</b><span>담고, 개수 바꾸고, 빼기</span></div>
+    <div class="step"><span class="n">3</span><b>쿠폰</b><span>할인 쿠폰 적용</span></div>
+    <div class="step"><span class="n">4</span><b>주문</b><span>결제 금액 확인 후 주문 완료</span></div>
+    <div class="step"><span class="n">5</span><b>취소</b><span>주문 내역에서 취소</span></div>
+  </div>
+  <p class="muted small">진열대에 올릴 상품도 미리 정해 두었습니다. 머그컵(1만 원), 데님 팬츠(3만5천 원), 러닝화(8만9천 원), 품절된 에코백, 판매 중지된 모자. 테스트할 때 이 상품들이 항상 똑같은 상태로 준비됩니다.</p>
+</section>
+
+<section>
+  <span class="label">무엇을 만드나 ②</span>
+  <h2>가게 규칙: 로봇이 지켜보는 약속들</h2>
+  <p>테스트의 본질은 "정해진 규칙대로 동작하는가"를 확인하는 일입니다. 이 쇼핑몰의 규칙은 아래와 같습니다.</p>
+  <div class="rules">
+    <div class="rule"><span class="who">상품</span><h3>재고가 0이면 살 수 없다</h3><p>품절된 에코백은 장바구니에 담기지 않아야 합니다.</p></div>
+    <div class="rule"><span class="who">장바구니</span><h3>남은 개수보다 많이 담을 수 없다</h3><p>데님 팬츠가 5개 남았으면 6개는 거절해야 합니다.</p></div>
+    <div class="rule"><span class="who">쿠폰</span><h3>3만 원 이상일 때만 5천 원 할인</h3><p>딱 3만 원이면 되고, 2만 원이면 안 됩니다.</p></div>
+    <div class="rule"><span class="who">쿠폰</span><h3>한 번 쓴 쿠폰은 다시 못 쓴다</h3><p>같은 쿠폰으로 두 번째 주문을 하면 거절해야 합니다.</p></div>
+    <div class="rule"><span class="who">주문</span><h3>주문하면 재고가 줄어든다</h3><p>러닝화 3개 중 1개를 사면 남은 수량이 2개로 바뀌어야 합니다.</p></div>
+    <div class="rule"><span class="who">주문</span><h3>하나라도 부족하면 주문 전체가 취소된다</h3><p>일부만 주문되고 나머지는 실패하는 어정쩡한 상태가 생기면 안 됩니다.</p></div>
+    <div class="rule"><span class="who">취소</span><h3>취소하면 재고가 원래대로 돌아온다</h3><p>2개로 줄었던 러닝화가 취소 후 다시 3개가 되어야 합니다.</p></div>
+    <div class="rule"><span class="who">취소</span><h3>같은 주문을 두 번 취소할 수 없다</h3><p>두 번째 취소는 거절하고, 재고가 두 번 늘어나면 안 됩니다.</p></div>
+    <div class="rule policy"><span class="who">새로 정한 정책</span><h3>주문을 취소하면 쿠폰을 돌려준다</h3><p>과제에서 "직접 정하라"고 한 부분입니다. 손님 입장에서 자연스럽고 실제 쇼핑몰에서도 흔한 방식이라 "돌려준다"로 정했습니다. 취소 후 같은 쿠폰으로 다시 주문할 수 있어야 합니다.</p></div>
+  </div>
+</section>
+
+<section>
+  <span class="label">어떻게 검사하나</span>
+  <h2>검사를 세 층으로 나눕니다</h2>
+  <p>자동차 공장에 비유하면 이해하기 쉽습니다. 부품 검사는 빠르니까 아주 많이 하고, 도로 주행 시험은 오래 걸리니까 꼭 필요한 것만 합니다. 이 모양을 업계에서는 <b>테스트 피라미드</b>라고 부릅니다.</p>
+  <div class="pyr">
+    <svg viewBox="0 0 300 250" role="img" aria-label="테스트 피라미드: 아래 Unit 약 15개, 가운데 API 약 30개, 위 E2E 5개">
+      <polygon points="150,10 205,80 95,80" fill="var(--fail-soft)" stroke="var(--fail)" stroke-width="1.5"/>
+      <polygon points="95,86 205,86 250,160 50,160" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+      <polygon points="50,166 250,166 295,240 5,240" fill="var(--paper)" stroke="var(--ink-soft)" stroke-width="1.5"/>
+      <text x="150" y="58" text-anchor="middle" font-size="15" font-weight="700" fill="var(--ink)">E2E · 5개</text>
+      <text x="150" y="130" text-anchor="middle" font-size="15" font-weight="700" fill="var(--ink)">API · 약 30개</text>
+      <text x="150" y="210" text-anchor="middle" font-size="15" font-weight="700" fill="var(--ink)">Unit · 약 15개</text>
+    </svg>
+    <div class="layers">
+      <div class="layer">
+        <div class="nm">E2E<small>실제 손님처럼</small></div>
+        <div><p>로봇이 진짜 인터넷 창(브라우저)을 열고 손님처럼 클릭하고 입력합니다. 가장 현실적이지만 느리기 때문에 <b>중요한 쇼핑 흐름 5가지만</b> 검사합니다.</p><p class="eg">예: 상품 담기 → 쿠폰 적용 → 주문 → 화면에 "30,000원" 표시 확인</p></div>
+      </div>
+      <div class="layer">
+        <div class="nm">API<small>뒷문으로 직접 주문서 넣기</small></div>
+        <div><p>화면을 거치지 않고 가게 시스템에 직접 요청을 보냅니다. 화면을 그릴 필요가 없어서 빠르고, 온갖 까다로운 경우를 여기서 <b>꼼꼼하게</b> 검사합니다.</p><p class="eg">예: 수량에 0, -1, 1.5, "abc"를 넣으면 전부 거절하는지 확인</p></div>
+      </div>
+      <div class="layer">
+        <div class="nm">Unit<small>부품 하나 검사</small></div>
+        <div><p>할인 금액 계산 같은 작은 부품 하나만 떼어 검사합니다. 1초도 걸리지 않습니다.</p><p class="eg">예: 29,999원이면 할인 없음, 30,000원이면 할인 적용</p></div>
+      </div>
+    </div>
+  </div>
+  <p class="callout"><b>왜 API와 E2E를 나누나요?</b> 모든 경우를 브라우저로 검사하면 느리고, 화면 로딩이 조금만 늦어도 검사가 괜히 실패하기 쉽습니다. 그래서 "규칙이 맞는가"는 빠른 API 검사가 맡고, "손님이 화면에서 실제로 쇼핑을 끝낼 수 있는가"는 E2E가 맡도록 역할을 나눴습니다.</p>
+</section>
+
+<section>
+  <span class="label">검사 예시</span>
+  <h2>로봇이 실제로 확인하는 것들</h2>
+  <p>핵심은 <mark>"성공했다"는 대답만 믿지 않고 결과까지 확인하는 것</mark>입니다. 주문이 성공했다고 나와도 재고가 실제로 줄었는지, 쿠폰이 실제로 사용 처리됐는지까지 다시 들여다봅니다.</p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>상황</th><th>기대하는 결과</th><th>함께 확인하는 뒷정리</th></tr></thead>
+      <tbody>
+        <tr><td>데님 팬츠 2개 주문</td><td class="ok">주문 성공</td><td>재고 5 → 3, 장바구니 비워짐</td></tr>
+        <tr><td>머그컵 3개(딱 30,000원)에 쿠폰</td><td class="ok">할인 적용</td><td>결제금액 25,000원</td></tr>
+        <tr><td>머그컵 2개(20,000원)에 쿠폰</td><td class="no">거절 "3만 원 이상"</td><td>할인 0원, 쿠폰은 그대로</td></tr>
+        <tr><td>이미 쓴 쿠폰으로 또 주문</td><td class="no">거절 "이미 사용"</td><td>두 번째 주문이 생기지 않음</td></tr>
+        <tr><td>주문 취소</td><td class="ok">취소 완료</td><td>재고 원래대로, 쿠폰 다시 사용 가능</td></tr>
+        <tr><td>같은 주문 두 번째 취소</td><td class="no">거절 "이미 취소됨"</td><td>재고가 두 번 늘지 않음</td></tr>
+        <tr><td>러닝화 3개를 담아 둔 사이 다른 손님이 2개 구매</td><td class="no">거절 "재고 부족"</td><td>재고·쿠폰·장바구니 모두 그대로</td></tr>
+        <tr><td>없는 주문 번호로 취소</td><td class="no">거절 "주문 없음"</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="muted small">표의 "딱 30,000원" 같은 경계 지점을 일부러 검사하는 것을 <b>경계값 테스트</b>라고 합니다. 버그가 가장 잘 숨는 곳이 이런 경계입니다.</p>
+</section>
+
+<section>
+  <span class="label">공정한 시험</span>
+  <h2>매 검사는 같은 출발선에서 시작합니다</h2>
+  <p>앞 검사에서 러닝화를 사 버리면 다음 검사는 재고 2개에서 시작하게 되고, 결과가 검사 순서에 따라 달라집니다. 이를 막으려고 <b>검사 하나를 시작할 때마다 가게를 처음 상태로 되돌립니다.</b> 진열대, 쿠폰, 장바구니가 전부 초기화됩니다.</p>
+  <p class="callout warn">이 "초기화 버튼"이 실제 운영 중인 가게에 있으면 큰 사고가 납니다. 그래서 <b>검사 모드에서만 존재</b>하게 만들고, 일반 모드에서는 없다는 것도 따로 검사합니다.</p>
+</section>
+
+<section>
+  <span class="label">자동 실행 (CI)</span>
+  <h2>코드를 올릴 때마다 로봇이 알아서 전부 검사합니다</h2>
+  <p>코드를 GitHub(코드 보관소)에 올리면 GitHub Actions라는 기능이 자동으로 아래 순서대로 검사를 돌립니다. 사람이 버튼을 누를 필요가 없습니다.</p>
+  <div class="pipe" aria-label="자동 검사 순서">
+    <span class="p">준비물 설치</span><span class="arr">→</span>
+    <span class="p">가게 문 열기</span><span class="arr">→</span>
+    <span class="p">부품 검사 (Unit)</span><span class="arr">→</span>
+    <span class="p">뒷문 검사 (API)</span><span class="arr">→</span>
+    <span class="p">손님 검사 (E2E)</span><span class="arr">→</span>
+    <span class="p">보고서</span>
+  </div>
+  <div class="lights">
+    <div class="light g"><b>전부 통과하면 초록불</b><span>새로 바꾼 코드가 기존 기능을 망가뜨리지 않았다는 뜻입니다.</span></div>
+    <div class="light r"><b>하나라도 실패하면 빨간불</b><span>어디서 실패했는지 바로 보이고, 문제가 있는 코드가 그대로 통과되지 않습니다.</span></div>
+  </div>
+</section>
+
+<section>
+  <span class="label">실패의 증거</span>
+  <h2>실패하면 "왜 실패했는지" 증거가 남습니다</h2>
+  <p>"안 돼요"만으로는 개발자가 고칠 수 없습니다. 수동 QA에서 버그 리포트에 캡처를 붙이던 것처럼, 로봇도 증거를 자동으로 남깁니다. 이 증거는 GitHub에서 파일로 내려받을 수 있습니다.</p>
+  <div class="ev">
+    <div class="evi"><span class="like">사진 한 장</span><h3>스크린샷</h3><p>실패한 순간의 화면을 찍어 둡니다.</p></div>
+    <div class="evi"><span class="like">블랙박스 영상</span><h3>트레이스</h3><p>클릭 하나하나, 화면 변화, 주고받은 데이터를 모두 기록합니다. 나중에 되감아 보면서 원인을 찾습니다.</p></div>
+    <div class="evi"><span class="like">성적표</span><h3>HTML 리포트</h3><p>어떤 검사가 통과하고 실패했는지 한눈에 보이는 웹 페이지 보고서입니다.</p></div>
+  </div>
+</section>
+
+<section>
+  <span class="label">지키는 원칙</span>
+  <h2>눈속임 없이 정직하게</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>원칙</th><th>쉬운 말로</th></tr></thead>
+      <tbody>
+        <tr><td>진짜로 동작하는 것만</td><td>설명서에만 있고 실제로 없는 기능은 만들지 않습니다.</td></tr>
+        <tr><td>가짜 통과 금지</td><td>"통과"라는 글자만 찍는 가짜 검사를 만들지 않습니다. 실제 가게에 실제로 요청을 보냅니다.</td></tr>
+        <tr><td>기준 낮추기 금지</td><td>검사가 실패한다고 기준을 느슨하게 바꿔서 통과시키지 않습니다.</td></tr>
+        <tr><td>"3초 기다리기" 금지</td><td>"대충 3초 기다리면 되겠지" 대신 "결제 완료 글자가 보일 때까지" 같은 분명한 조건으로 기다립니다.</td></tr>
+        <tr><td>재시도로 숨기지 않기</td><td>가끔 실패하는 검사를 여러 번 다시 돌려 통과시키지 않고, 원인을 찾아 고칩니다.</td></tr>
+        <tr><td>단계마다 확인</td><td>한 단계가 완전히 동작하는 걸 확인한 뒤에야 다음 단계로 넘어갑니다.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <span class="label">진행 순서</span>
+  <h2>11단계로 나눠서 하나씩 완성합니다</h2>
+  <ol class="phases">
+    <li class="now"><span class="no-">0</span><div><div class="t">설계</div><div class="d">무엇을 만들지, 어떻게 검사할지 정하기 (이 문서)</div></div></li>
+    <li><span class="no-">1</span><div><div class="t">가게 뼈대 + 데이터 창고</div><div class="d">서버를 켜고, 상품·손님 정보를 저장할 곳 만들기</div></div></li>
+    <li><span class="no-">2</span><div><div class="t">상품 · 장바구니</div><div class="d">진열대와 장바구니 화면, 재고 규칙</div></div></li>
+    <li><span class="no-">3</span><div><div class="t">쿠폰</div><div class="d">할인 계산, 최소 금액, 사용 여부</div></div></li>
+    <li><span class="no-">4</span><div><div class="t">주문 · 취소 · 재고</div><div class="d">주문하면 재고 감소, 취소하면 복구</div></div></li>
+    <li><span class="no-">5</span><div><div class="t">API 자동 검사</div><div class="d">뒷문 검사 약 30개 작성</div></div></li>
+    <li><span class="no-">6</span><div><div class="t">E2E 자동 검사</div><div class="d">브라우저로 손님 흐름 5개 작성</div></div></li>
+    <li><span class="no-">7</span><div><div class="t">자동 실행 (CI)</div><div class="d">코드를 올리면 GitHub가 검사를 자동으로 실행</div></div></li>
+    <li><span class="no-">8</span><div><div class="t">실패 증거 · 보고서</div><div class="d">일부러 버그를 넣어 증거가 제대로 남는지 확인</div></div></li>
+    <li><span class="no-">9</span><div><div class="t">문서 정리</div><div class="d">채용 담당자용 README와 설명 문서</div></div></li>
+    <li><span class="no-">10</span><div><div class="t">최종 점검</div><div class="d">전체 검사를 다시 돌리고, 설계와 실제 결과 비교</div></div></li>
+  </ol>
+</section>
+
+<section>
+  <span class="label">용어 사전</span>
+  <h2>자주 나올 단어들</h2>
+  <dl class="gl">
+    <div><dt>서버<small>Server</small></dt><dd>가게의 주방이자 계산대. 손님 요청을 받아 처리합니다.</dd></div>
+    <div><dt>데이터베이스<small>DB</small></dt><dd>가게 장부. 상품, 재고, 주문 기록이 적혀 있습니다.</dd></div>
+    <div><dt>브라우저<small>Browser</small></dt><dd>크롬 같은 인터넷 창. 손님이 가게를 보는 창문입니다.</dd></div>
+    <div><dt>API</dt><dd>화면을 거치지 않고 가게 시스템과 직접 주고받는 주문서 양식입니다.</dd></div>
+    <div><dt>E2E<small>End to End</small></dt><dd>처음부터 끝까지 손님처럼 전체 흐름을 해 보는 검사입니다.</dd></div>
+    <div><dt>Playwright</dt><dd>브라우저를 자동으로 조작하는 검사 로봇 도구입니다. 이 프로젝트의 핵심 도구입니다.</dd></div>
+    <div><dt>CI<small>GitHub Actions</small></dt><dd>코드를 올릴 때마다 검사를 자동으로 돌려 주는 장치입니다.</dd></div>
+    <div><dt>Assertion</dt><dd>"결제금액은 30,000원이어야 한다" 같은 판정 기준 한 줄입니다.</dd></div>
+    <div><dt>회귀 테스트<small>Regression</small></dt><dd>새로 고친 게 예전에 잘 되던 기능을 망가뜨리지 않았는지 다시 확인하는 검사입니다.</dd></div>
+    <div><dt>Flaky 테스트</dt><dd>같은 조건인데 어떨 땐 통과하고 어떨 땐 실패하는 불안정한 검사입니다. 없애야 할 대상입니다.</dd></div>
+  </dl>
+</section>
+
+<section>
+  <span class="label">확인 부탁</span>
+  <h2>다음 단계 전에 정해 둔 세 가지</h2>
+  <p>제가 추천하는 방향으로 정해 두었습니다. 다르게 하고 싶으면 말씀해 주세요.</p>
+  <div class="dec">
+    <div class="dq"><h3>주문을 취소하면 쿠폰을 돌려줄까요?</h3><span class="pick">추천: 돌려준다</span><p>손님 입장에서 자연스럽고, 실제 쇼핑몰에서도 흔한 방식입니다.</p></div>
+    <div class="dq"><h3>로그인 기능을 만들까요?</h3><span class="pick">추천: 만들지 않는다 (손님 번호로만 구분)</span><p>로그인은 이번 검사의 주제가 아니라서, 복잡도만 늘리고 배울 점은 적습니다. 손님 두 명(Alice, Bob)을 미리 만들어 두고 번호로 구분합니다.</p></div>
+    <div class="dq"><h3>검사를 동시에 여러 개 돌릴까요?</h3><span class="pick">추천: 한 번에 하나씩 순서대로</span><p>가게 장부가 하나라서, 동시에 돌리면 서로의 검사를 방해합니다. 검사가 약 50개 정도라 순서대로 돌려도 몇 분이면 끝납니다.</p></div>
+  </div>
+</section>
+
+<footer>
+  Phase 0 설계가 끝났습니다. 괜찮으면 Phase 1(가게 뼈대 + 데이터 창고)부터 실제로 만들기 시작합니다.
+</footer>
+
+</div>
+</body>
+</html>
