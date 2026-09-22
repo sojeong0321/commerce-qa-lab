@@ -1,0 +1,20 @@
+{
+  "name": "commerce-qa-lab",
+  "version": "0.1.0",
+  "private": true,
+  "description": "QA Automation portfolio: small commerce app tested with Playwright API/E2E and GitHub Actions",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node app/server.js",
+    "start:test": "NODE_ENV=test DB_PATH=data/test.db PORT=3100 node app/server.js",
+    "db:setup": "node app/db/setup.js",
+    "test:unit": "node --test \"tests/unit/**/*.test.js\""
+  },
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "express": "^5.2.1"
+  }
+}
