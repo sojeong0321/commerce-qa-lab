@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>상품 | commerce-qa-lab</title>
+  <title>주문 완료 | commerce-qa-lab</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
   <header class="site-header">
     <a class="brand" href="/">commerce-qa-lab</a>
     <nav aria-label="주요 메뉴">
-      <a href="/" aria-current="page">상품</a>
+      <a href="/">상품</a>
       <a href="/cart.html">장바구니 <span id="cart-count" class="count" data-testid="cart-count">0</span></a>
       <a href="/orders.html">주문 내역</a>
     </nav>
@@ -18,12 +18,12 @@
   </header>
 
   <main>
-    <h1>상품</h1>
+    <h1>주문 완료</h1>
     <p id="status-message" class="message message-ok" role="status" hidden></p>
     <p id="error-message" class="message message-error" role="alert" hidden></p>
-    <ul id="product-list" class="product-grid" aria-label="상품 목록"></ul>
+    <section id="order-complete" class="complete-card" aria-label="주문 정보"></section>
   </main>
 
-  <script type="module" src="/js/products.js"></script>
+  <script type="module" src="/js/order-complete.js"></script>
 </body>
 </html>

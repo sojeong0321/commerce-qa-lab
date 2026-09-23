@@ -5,10 +5,12 @@ const { createUsersRouter } = require('./routes/users');
 const { createProductsRouter } = require('./routes/products');
 const { createCartRouter } = require('./routes/cart');
 const { createCouponsRouter, createCheckoutRouter } = require('./routes/coupons');
+const { createOrdersRouter } = require('./routes/orders');
 const { createTestSupportRouter } = require('./routes/testSupport');
 const { createProductService } = require('./services/productService');
 const { createCartService } = require('./services/cartService');
 const { createCouponService } = require('./services/couponService');
+const { createOrderService } = require('./services/orderService');
 const { userContext } = require('./middleware/userContext');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 
@@ -19,6 +21,7 @@ function createApp({ db, env }) {
   const productService = createProductService(db);
   const cartService = createCartService(db, productService);
   const couponService = createCouponService(db);
+  const orderService = createOrderService(db, { productService, cartService, couponService });
 
   app.use(express.json());
   app.use(express.static(path.join(__dirname, 'public')));
@@ -37,6 +40,7 @@ function createApp({ db, env }) {
   app.use('/api/cart', userContext(db), createCartRouter(cartService));
   app.use('/api/coupons', userContext(db), createCouponsRouter(couponService));
   app.use('/api/checkout', userContext(db), createCheckoutRouter(cartService, couponService));
+  app.use('/api/orders', userContext(db), createOrdersRouter(orderService));
 
   app.use('/api', notFoundHandler);
   app.use(errorHandler);

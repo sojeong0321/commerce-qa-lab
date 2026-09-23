@@ -56,7 +56,8 @@ function renderCart(checkout) {
       <div><dt>상품 금액</dt><dd data-testid="cart-subtotal">${formatWon(checkout.subtotal)}</dd></div>
       ${couponRow}
       <div class="total-row"><dt>결제 예정 금액</dt><dd data-testid="cart-total">${formatWon(checkout.total)}</dd></div>
-    </dl>`;
+    </dl>
+    <button type="button" id="order-button" class="order-button">주문하기</button>`;
 }
 
 function renderCoupons(coupons) {
@@ -117,6 +118,22 @@ container.addEventListener('submit', async (event) => {
   } catch (error) {
     showError(error.message);
     await reloadCheckout(); // 실패하면 입력칸을 서버의 실제 수량으로 되돌린다.
+  }
+});
+
+// 주문 생성. 금액과 재고, 쿠폰 사용 여부는 모두 서버가 다시 확인한다.
+container.addEventListener('click', async (event) => {
+  if (event.target.id !== 'order-button') return;
+  event.target.disabled = true;
+
+  try {
+    const order = await api('POST', '/api/orders', { couponCode: appliedCouponCode ?? undefined });
+    window.location.href = `/order-complete.html?orderId=${order.id}`;
+  } catch (error) {
+    showError(error.message);
+    appliedCouponCode = error.code === 'COUPON_ALREADY_USED' ? null : appliedCouponCode;
+    await reloadCheckout(); // 서버의 최신 상태(재고·금액)로 화면을 맞춘다.
+    await refreshCartCount();
   }
 });
 

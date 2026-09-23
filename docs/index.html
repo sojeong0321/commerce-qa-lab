@@ -13,7 +13,7 @@
   <span class="label">진행 현황</span>
   <h1>commerce-qa-lab 단계별 가이드</h1>
   <p class="lead">작은 온라인 쇼핑몰을 직접 만들고, 그 쇼핑몰을 검사 로봇이 자동으로 확인하게 만드는 프로젝트입니다. 각 단계마다 무엇을 만들었고 어떻게 확인했는지 코딩을 몰라도 읽을 수 있게 정리했습니다.</p>
-  <div class="oneline">현재 <strong>Phase 3까지 완료</strong>. 상품 · 장바구니 · 쿠폰이 실제로 동작하고, 자동 검사 61개가 통과합니다.</div>
+  <div class="oneline">현재 <strong>Phase 4까지 완료</strong>. 상품 · 장바구니 · 쿠폰 · 주문 · 취소가 실제로 동작하고, 자동 검사 77개가 통과합니다.</div>
 </header>
 
 <section>
@@ -23,8 +23,8 @@
     <li><span class="no-">0</span><div><div class="t"><a href="phase-0-design-guide.html">설계</a></div><div class="d">무엇을 만들지, 어떻게 검사할지 정하기 · 완료</div></div></li>
     <li><span class="no-">1</span><div><div class="t"><a href="phase-1-skeleton-guide.html">가게 뼈대와 창고</a></div><div class="d">서버 실행, 데이터베이스, 초기화 기능 · 완료 (검사 13개)</div></div></li>
     <li><span class="no-">2</span><div><div class="t"><a href="phase-2-product-cart-guide.html">상품 · 장바구니</a></div><div class="d">진열대 화면, 담기와 수량 변경, 재고 규칙 · 완료 (검사 44개)</div></div></li>
-    <li class="now"><span class="no-">3</span><div><div class="t"><a href="phase-3-coupon-guide.html">쿠폰</a></div><div class="d">할인 계산, 최소 주문금액, 재사용 차단 · 완료 (검사 61개)</div></div></li>
-    <li><span class="no-">4</span><div><div class="t">주문 · 취소 · 재고</div><div class="d">주문하면 재고 감소, 취소하면 재고와 쿠폰 복구</div></div></li>
+    <li><span class="no-">3</span><div><div class="t"><a href="phase-3-coupon-guide.html">쿠폰</a></div><div class="d">할인 계산, 최소 주문금액, 재사용 차단 · 완료 (검사 61개)</div></div></li>
+    <li class="now"><span class="no-">4</span><div><div class="t"><a href="phase-4-order-cancel-guide.html">주문 · 취소 · 재고</a></div><div class="d">주문하면 재고 감소, 취소하면 재고와 쿠폰 복구 · 완료 (검사 77개)</div></div></li>
     <li><span class="no-">5</span><div><div class="t">API 자동 검사</div><div class="d">화면을 거치지 않는 빠른 검사 약 30개</div></div></li>
     <li><span class="no-">6</span><div><div class="t">E2E 자동 검사</div><div class="d">실제 브라우저로 손님 흐름 5가지</div></div></li>
     <li><span class="no-">7</span><div><div class="t">자동 실행 (CI)</div><div class="d">코드를 올리면 GitHub가 모든 검사를 자동 실행</div></div></li>
@@ -38,9 +38,9 @@
   <span class="label">지금 상태</span>
   <h2>현재 동작하는 것</h2>
   <div class="counts">
-    <div><b>61</b><span>자동 검사 (모두 통과)</span></div>
-    <div><b>2</b><span>화면 (상품, 장바구니)</span></div>
-    <div><b>12</b><span>동작하는 API</span></div>
+    <div><b>77</b><span>자동 검사 (모두 통과)</span></div>
+    <div><b>4</b><span>화면 (상품, 장바구니, 주문 완료, 주문 내역)</span></div>
+    <div><b>15</b><span>동작하는 API</span></div>
   </div>
   <p class="muted small">자동 검사는 아직 "부품 검사" 단계입니다. 정식 API 검사와 브라우저 검사는 Phase 5~6에서 프로젝트에 포함되고, Phase 7부터 GitHub에서 자동으로 실행됩니다.</p>
   <pre class="cmd">npm install       # 준비물 설치

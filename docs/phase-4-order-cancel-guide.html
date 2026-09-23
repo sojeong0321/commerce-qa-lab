@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 4 · 주문과 취소</title>
+<link rel="stylesheet" href="guide.css">
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="crumbs">
+    <a href="index.html">진행 현황</a><span>·</span>
+    <a href="phase-3-coupon-guide.html">Phase 3</a><span>·</span>
+    <span>Phase 4</span>
+  </div>
+  <span class="label">Phase 4 · 완료</span>
+  <h1>주문하면 재고가 줄고, 취소하면 돌아온다</h1>
+  <p class="lead">쇼핑몰이 처음부터 끝까지 동작합니다. 상품을 담아 주문하면 재고가 줄고, 주문을 취소하면 재고와 쿠폰이 원래대로 복구됩니다.</p>
+  <div class="oneline">
+    한 줄 요약: <strong>주문 · 취소 · 재고 관리</strong>를 만들었습니다. 핵심은 <strong>"문제가 생기면 아무것도 바뀌지 않는다"</strong>는 것입니다.
+  </div>
+</header>
+
+<section>
+  <span class="label">화면</span>
+  <h2>새로 생긴 화면</h2>
+  <figure class="shot">
+    <img src="images/phase4-order-complete.png" alt="주문 완료 화면. 주문번호 #1, 데님 팬츠 1개, 결제 금액 35,000원이 표시된다.">
+    <figcaption>주문 완료 화면. 주문번호와 주문한 상품, 결제 금액이 보입니다. 장바구니 개수는 0으로 비워졌습니다.</figcaption>
+  </figure>
+  <figure class="shot">
+    <img src="images/phase4-orders.png" alt="주문 내역 화면. 주문 완료 상태의 주문 #2와 취소됨 상태의 주문 #1이 보인다.">
+    <figcaption>주문 내역. 최신 주문이 위에 옵니다. <b>주문 완료</b> 상태에만 취소 버튼이 있고, <b>취소됨</b> 주문에는 버튼이 아예 없어서 두 번 취소할 수 없습니다.</figcaption>
+  </figure>
+  <figure class="shot">
+    <img src="images/phase4-order-rejected.png" alt="장바구니 화면에서 주문이 거절되어 재고가 부족하다는 안내가 표시된 모습.">
+    <figcaption>주문이 거절된 경우. 장바구니에 담아 둔 사이 다른 손님이 먼저 사 가면, 주문 버튼을 눌러도 이유를 알려 주고 주문 완료 화면으로 넘어가지 않습니다.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <span class="label">핵심 개념</span>
+  <h2>"전부 되든지, 아무것도 안 되든지"</h2>
+  <p>주문 한 번에는 여러 가지 일이 동시에 일어납니다.</p>
+  <div class="journey">
+    <div class="step"><span class="n">1</span><b>재고 확인</b><span>담은 뒤 재고가 바뀌었을 수 있으니 다시 확인</span></div>
+    <div class="step"><span class="n">2</span><b>재고 감소</b><span>상품마다 주문 수량만큼 차감</span></div>
+    <div class="step"><span class="n">3</span><b>쿠폰 사용</b><span>쿠폰을 썼다면 사용 완료 처리</span></div>
+    <div class="step"><span class="n">4</span><b>주문 저장</b><span>주문 시점의 이름과 가격을 함께 기록</span></div>
+    <div class="step"><span class="n">5</span><b>장바구니 비우기</b></div>
+  </div>
+  <p class="callout">이 다섯 가지는 <mark>하나로 묶여 있습니다.</mark> 중간에 하나라도 실패하면 앞의 것까지 전부 없던 일이 됩니다. 이런 처리를 <b>트랜잭션</b>이라고 합니다. 이게 없으면 "재고는 줄었는데 주문은 없는" 유령 상태가 생깁니다. 실무에서 가장 골치 아픈 종류의 버그입니다.</p>
+  <p>취소도 똑같이 묶여 있습니다. <b>재고 복구 + 쿠폰 복구 + 상태 변경</b>이 한 덩어리입니다.</p>
+</section>
+
+<section>
+  <span class="label">규칙</span>
+  <h2>주문과 취소가 지키는 약속</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>상황</th><th>결과</th><th>함께 확인한 뒷정리</th></tr></thead>
+      <tbody>
+        <tr><td>데님 팬츠 2개 주문</td><td class="ok">주문 완료</td><td>재고 5 → 3, 장바구니 비워짐</td></tr>
+        <tr><td>쿠폰 쓴 주문</td><td class="ok">35,000 → 30,000원</td><td>쿠폰이 <b>사용 완료</b>로 바뀜</td></tr>
+        <tr><td>이미 쓴 쿠폰으로 다시 주문</td><td class="no">거절</td><td>재고·장바구니 그대로, 주문 생기지 않음</td></tr>
+        <tr><td>담아 둔 사이 다른 손님이 먼저 구매</td><td class="no">거절 · 재고 부족</td><td>재고·쿠폰·장바구니 모두 그대로</td></tr>
+        <tr><td>여러 상품 중 하나만 재고 부족</td><td class="no">주문 전체 거절</td><td><b>부족하지 않던 상품의 재고도 그대로</b></td></tr>
+        <tr><td>빈 장바구니로 주문</td><td class="no">거절</td><td>—</td></tr>
+        <tr><td>주문 취소</td><td class="ok">상태가 취소됨으로</td><td>재고 복구, 쿠폰 다시 사용 가능</td></tr>
+        <tr><td>같은 주문을 두 번 취소</td><td class="no">거절 · 이미 취소된 주문</td><td><b>재고가 두 번 늘지 않음</b></td></tr>
+        <tr><td>없는 주문 / 남의 주문 취소</td><td class="no">거절 · 주문을 찾을 수 없음</td><td>남의 주문 상태와 재고 변화 없음</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="muted small">주문에는 상품의 <b>그때 이름과 가격</b>을 함께 저장합니다. 나중에 가격이 바뀌어도 이미 한 주문의 금액은 변하지 않습니다. 실제로 가격을 바꿔 보고 확인했습니다.</p>
+</section>
+
+<section>
+  <span class="label">검사 결과</span>
+  <h2>세 방식 모두 통과</h2>
+  <div class="counts">
+    <div><b>77</b><span>부품 검사 (이전 단계 회귀 포함)</span></div>
+    <div><b>33</b><span>서버에 직접 요청해 확인</span></div>
+    <div><b>14</b><span>실제 브라우저 클릭 확인</span></div>
+  </div>
+  <p>브라우저 확인은 Phase 6에서 만들 <b>E2E 시나리오의 예행</b>으로 진행했습니다. 모두 3번 연속 통과했습니다.</p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>시나리오</th><th>확인한 내용</th></tr></thead>
+      <tbody>
+        <tr><td>E2E-001</td><td>상품 담기 → 장바구니 → 주문 → 주문번호와 금액 확인, 장바구니 비워짐, 재고 5 → 4</td></tr>
+        <tr><td>E2E-002</td><td>쿠폰 적용 → 할인 5,000원 → 주문 → 최종 결제 30,000원, 쿠폰이 사용 완료로 바뀜</td></tr>
+        <tr><td>E2E-003</td><td>재고 3 확인 → 주문 → 재고 2 확인 → 취소 → 재고 3 복구, 취소 버튼 사라짐</td></tr>
+        <tr><td>E2E-004</td><td>재고보다 많이 담기 거절 + 담아 둔 사이 품절되면 주문 거절, 주문 내역 생기지 않음</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <span class="label">검사를 믿을 수 있나</span>
+  <h2>취소할 때 재고를 안 돌려주도록 망가뜨려 봤습니다</h2>
+  <p>주문 취소에서 <b>재고 복구만 빼고</b> 코드를 일부러 망가뜨린 뒤 검사를 돌렸습니다.</p>
+  <div class="counts">
+    <div><b>2</b><span>부품 검사가 실패로 잡음</span></div>
+    <div><b>1</b><span>브라우저 검사(E2E-003)가 잡음</span></div>
+    <div><b>원복</b><span>확인 후 코드는 되돌림</span></div>
+  </div>
+  <p class="callout">특히 <b>"두 번 취소해도 재고가 두 번 늘지 않는다"</b>를 확인하는 검사가 함께 실패했습니다. 이런 검사는 "취소가 됐다"만 보는 검사로는 절대 잡을 수 없습니다. <mark>결과가 아니라 결과의 뒷정리까지 확인해야 하는 이유</mark>입니다.</p>
+</section>
+
+<section>
+  <span class="label">찾은 문제</span>
+  <h2>가끔만 실패하는 검사를 찾아 고쳤습니다</h2>
+  <div class="bug">
+    <span class="found">3번 연속 실행 중 1번 발생</span>
+    <h3>페이지 새로고침이 겹쳐 검사가 깨졌다 (재발)</h3>
+    <p>Phase 3에서 고쳤던 것과 <b>같은 종류</b>의 문제가 다른 스크립트에 남아 있었습니다. 손님을 바꾸면 화면이 스스로 새로고침되는데, 그 직후 바로 다음 페이지로 이동하면 가끔 충돌합니다. 앱의 버그는 아니지만, 이렇게 <b>10번에 1번쯤 실패하는 검사</b>가 자동화를 신뢰할 수 없게 만듭니다.</p>
+    <p><b>고친 방법:</b> "사용자 선택이 실제로 바뀔 때까지 기다리기"라는 조건을 넣었습니다. 이후 3번 연속 + 추가 5번 실행에서 재현되지 않았습니다.</p>
+    <p><b>배운 점:</b> 한 곳에서 고친 문제는 <b>같은 패턴이 다른 곳에도 있는지</b> 찾아봐야 합니다. Phase 6에서 정식 E2E를 만들 때 이 대기 조건을 공통으로 넣겠습니다.</p>
+  </div>
+</section>
+
+<footer>
+  쇼핑몰 기능은 여기서 완성입니다. 다음은 <b>Phase 5 · API 자동 검사</b>로, 지금까지 손으로 확인한 내용을 프로젝트 안의 정식 자동 검사로 옮깁니다. 전체 진행 상황은 <a href="index.html">진행 현황</a>에서 볼 수 있습니다.
+</footer>
+
+</div>
+</body>
+</html>

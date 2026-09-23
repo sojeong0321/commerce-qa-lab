@@ -29,7 +29,7 @@ Manual SW QA 경력자가 **QA Automation Engineer로 전환하기 위한 GitHub
 
 ## Phase 진행 순서
 
-0 설계 ✅ · 1 App 뼈대+DB ✅ · 2 Product/Cart ✅ · 3 Coupon ✅ · **4 Order/Cancel/Stock** · 5 API 자동화 · 6 Playwright E2E · 7 GitHub Actions CI · 8 Failure Evidence/Reporting · 9 Documentation · 10 Final Regression
+0 설계 ✅ · 1 App 뼈대+DB ✅ · 2 Product/Cart ✅ · 3 Coupon ✅ · 4 Order/Cancel/Stock ✅ · **5 API 자동화** · 6 Playwright E2E · 7 GitHub Actions CI · 8 Failure Evidence/Reporting · 9 Documentation · 10 Final Regression
 
 한 번에 여러 Phase를 진행하지 않는다. 한 Phase를 끝내고 사용자 확인을 받는다.
 
@@ -105,6 +105,6 @@ npm run test:unit  # 단위 테스트
 
 ## 현재 상태 (Phase를 끝낼 때마다 갱신할 것)
 
-- 완료: Phase 0~3. 단위 테스트 **61개** 통과.
-- 동작: 상품 목록/장바구니 화면, 상품·장바구니·쿠폰 API, checkout preview.
-- 다음: **Phase 4 — 주문 / 취소 / 재고**
+- 완료: Phase 0~4. 단위 테스트 **77개** 통과.
+- 동작: 화면 4개(상품, 장바구니, 주문 완료, 주문 내역), API 15개(상품·장바구니·쿠폰·checkout preview·주문/취소).
+- 다음: **Phase 5 — API 자동화** (지금까지 curl과 임시 스크립트로 확인한 내용을 프로젝트 안 Playwright API 테스트로 옮긴다)
