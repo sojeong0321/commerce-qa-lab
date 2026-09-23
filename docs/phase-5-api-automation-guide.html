@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 5 · API 자동 검사</title>
+<link rel="stylesheet" href="guide.css">
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="crumbs">
+    <a href="index.html">진행 현황</a><span>·</span>
+    <a href="phase-4-5-review-guide.html">중간 점검</a><span>·</span>
+    <span>Phase 5</span>
+  </div>
+  <span class="label">Phase 5 · 완료</span>
+  <h1>손으로 확인하던 것을 로봇에게 넘겼다</h1>
+  <p class="lead">지금까지 제가 명령어로 하나씩 확인하던 내용을, 이제 누구나 <b>한 줄 명령</b>으로 실행할 수 있는 자동 검사로 옮겼습니다.</p>
+  <div class="oneline">
+    한 줄 요약: <strong>Playwright API 검사 73개</strong>를 만들었습니다. 실제 서버를 띄워 진짜 요청을 보내고, <strong>4초</strong> 만에 끝납니다.
+  </div>
+</header>
+
+<section>
+  <span class="label">달라진 점</span>
+  <h2>확인 가능한 프로젝트가 되었다</h2>
+  <p>이전까지 "36개 요청을 확인했다"는 말은 제 작업 기록일 뿐, 다른 사람이 재현할 수 없었습니다. 이제는 저장소를 받은 누구나 같은 명령으로 같은 결과를 볼 수 있습니다.</p>
+  <pre class="cmd">npm install       # 준비물 설치
+npm test          # 부품 검사 125개 + API 검사 73개 전부 실행
+npm run report    # 결과 보고서를 브라우저로 열기</pre>
+  <div class="counts">
+    <div><b>73</b><span>API 자동 검사</span></div>
+    <div><b>4초</b><span>전체 실행 시간</span></div>
+    <div><b>198</b><span>지금까지 만든 자동 검사 합계</span></div>
+  </div>
+</section>
+
+<section>
+  <span class="label">어떻게 동작하나</span>
+  <h2>검사가 스스로 가게 문을 연다</h2>
+  <div class="journey">
+    <div class="step"><span class="n">1</span><b>서버 켜기</b><span>검사가 직접 애플리케이션을 띄우고 "준비됐다"는 응답을 기다립니다</span></div>
+    <div class="step"><span class="n">2</span><b>초기화</b><span>검사 하나를 시작할 때마다 DB를 처음 상태로 되돌립니다</span></div>
+    <div class="step"><span class="n">3</span><b>실제 요청</b><span>화면을 거치지 않고 서버 주소로 직접 요청을 보냅니다</span></div>
+    <div class="step"><span class="n">4</span><b>결과 확인</b><span>응답뿐 아니라 재고·쿠폰·장바구니 상태까지 다시 조회해 확인합니다</span></div>
+    <div class="step"><span class="n">5</span><b>정리</b><span>실패하면 트레이스와 보고서를 남깁니다</span></div>
+  </div>
+  <p class="callout"><b>가짜가 아닙니다.</b> 검사는 실제 Express 서버와 실제 SQLite 데이터베이스를 상대합니다. 응답을 흉내 낸 가짜 서버는 쓰지 않았습니다. 그래서 "서버에서는 되는데 검사만 통과" 같은 일이 생기지 않습니다.</p>
+</section>
+
+<section>
+  <span class="label">무엇을 검사하나</span>
+  <h2>73개의 구성</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>파일</th><th>개수</th><th>확인하는 것</th></tr></thead>
+      <tbody>
+        <tr><td>products</td><td>6</td><td>상품 목록·상세, 품절/판매중지 표시, 없는 상품, id 형식</td></tr>
+        <tr><td>cart</td><td>25</td><td>담기·합산·경계값·수량 변경·삭제, 잘못된 입력 6종, 손님 분리, 인증</td></tr>
+        <tr><td>coupon</td><td>15</td><td>할인 계산, 30,000원 경계값, 미달·미보유·사용완료, 미리보기가 상태를 바꾸지 않음</td></tr>
+        <tr><td>order</td><td>16</td><td>주문 생성·재고 감소·쿠폰 사용, 다중 상품, 재고 부족 시 전체 취소, 주문 기록</td></tr>
+        <tr><td>cancel</td><td>11</td><td>취소·재고 복구·쿠폰 복구, 중복 취소, 없는/남의 주문</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>검사 이름에 <b>API-ORD-004</b> 같은 번호를 붙였습니다. 설계 단계에서 정한 검사 목록과 실제 코드를 이어 주는 표시이고, 면접에서 "이 규칙은 어느 검사가 확인하나요?"라는 질문에 바로 답할 수 있게 해 줍니다.</p>
+</section>
+
+<section>
+  <span class="label">QA 관점 1</span>
+  <h2>"성공했다"는 응답만 믿지 않는다</h2>
+  <p>이 프로젝트의 검사는 응답 확인에서 멈추지 않습니다. 예를 들어 <b>"여러 상품 중 하나만 재고가 부족한 주문"</b>을 확인할 때는 네 가지를 더 봅니다.</p>
+  <div class="rules">
+    <div class="rule"><h3>거절됐는가</h3><p>상태 코드 409와 이유 코드가 약속대로 오는가</p></div>
+    <div class="rule"><h3>다른 상품 재고는?</h3><p>부족하지 않았던 상품의 재고가 <b>그대로인가</b></p></div>
+    <div class="rule"><h3>쿠폰은?</h3><p>실패한 주문에서 쿠폰이 소모되지 않았는가</p></div>
+    <div class="rule"><h3>장바구니와 주문 내역은?</h3><p>장바구니가 유지되고, 주문이 생기지 않았는가</p></div>
+  </div>
+  <p class="muted small">상태 확인은 데이터베이스를 직접 열어 보지 않고 <b>공개 조회 API</b>로 합니다. 손님이 볼 수 있는 방식으로만 확인하기 때문에, 내부 구조가 바뀌어도 검사가 깨지지 않습니다.</p>
+</section>
+
+<section>
+  <span class="label">QA 관점 2</span>
+  <h2>검사끼리 서로 방해하지 않는다</h2>
+  <p>자동화에서 가장 흔한 함정은 <mark>"앞 검사가 남긴 흔적 때문에 뒤 검사가 실패"</mark>하는 것입니다. 이걸 막기 위해 세 가지를 확인했습니다.</p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>확인 방법</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>3번 연속 전체 실행</td><td class="ok">73개 통과 × 3</td></tr>
+        <tr><td>파일을 하나씩 따로 실행</td><td class="ok">5개 파일 모두 단독으로 통과</td></tr>
+        <tr><td>실행을 둘로 쪼개서 실행</td><td class="ok">51개 + 22개 모두 통과</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="callout">검사는 <b>한 번에 하나씩 순서대로</b> 실행합니다. 데이터베이스가 하나뿐이라 동시에 돌리면 서로의 데이터를 건드리기 때문입니다. 속도보다 <b>언제 돌려도 같은 결과</b>를 택한 것이고, 73개가 4초에 끝나므로 손해도 없습니다. 나중에 속도가 문제가 되면 검사별로 DB를 나누는 방법이 있습니다.</p>
+</section>
+
+<section>
+  <span class="label">검사를 믿을 수 있나</span>
+  <h2>8가지 버그를 넣어 전부 잡히는지 확인했습니다</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>일부러 넣은 버그</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>주문해도 재고를 줄이지 않음</td><td class="no">11개 실패로 잡힘</td></tr>
+        <tr><td>취소해도 재고를 복구하지 않음</td><td class="no">3개 실패</td></tr>
+        <tr><td>같은 주문을 여러 번 취소 허용</td><td class="no">2개 실패</td></tr>
+        <tr><td>쿠폰 최소 주문금액 조건 무시</td><td class="no">2개 실패</td></tr>
+        <tr><td>사용한 쿠폰 재사용 허용</td><td class="no">2개 실패</td></tr>
+        <tr><td>재고보다 많이 담기 허용</td><td class="no">5개 실패</td></tr>
+        <tr><td>남의 주문 조회·취소 허용</td><td class="no">2개 실패</td></tr>
+        <tr><td>수량 검증 제거</td><td class="no">7개 실패</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <span class="label">실패하면</span>
+  <h2>증거가 자동으로 남는다</h2>
+  <p>일부러 버그를 넣고 실패시켜, 증거가 실제로 남는지 확인했습니다.</p>
+  <div class="ev">
+    <div class="evi"><span class="like">블랙박스</span><h3>트레이스</h3><p>실패한 검사마다 요청과 응답이 기록된 파일이 남습니다. 나중에 열어 보면 어떤 요청에 무엇이 돌아왔는지 그대로 보입니다.</p></div>
+    <div class="evi"><span class="like">성적표</span><h3>HTML 보고서</h3><p><code>npm run report</code>로 열면 어떤 검사가 실패했고 어디서 멈췄는지 보입니다.</p></div>
+    <div class="evi"><span class="like">요약</span><h3>실패 맥락</h3><p>실패 직전 상태를 정리한 파일도 함께 남습니다.</p></div>
+  </div>
+  <p class="muted small">Phase 7에서 GitHub가 검사를 자동 실행하게 되면, 이 증거들이 인터넷에서 내려받을 수 있는 파일로 올라갑니다.</p>
+</section>
+
+<section>
+  <span class="label">늘어난 준비물</span>
+  <h2>추가한 도구는 두 개뿐</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>도구</th><th>왜 필요한가</th></tr></thead>
+      <tbody>
+        <tr><td>Playwright</td><td>검사 실행, 요청 보내기, 보고서와 트레이스. Phase 6의 브라우저 검사에도 같은 도구를 씁니다</td></tr>
+        <tr><td>TypeScript</td><td>검사 코드에서 오타나 잘못된 값 사용을 미리 잡아 줍니다</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="muted small">쇼핑몰 자체는 여전히 Express와 SQLite 둘로만 돌아갑니다. 검사 도구는 쇼핑몰 실행에 필요하지 않습니다.</p>
+</section>
+
+<footer>
+  다음은 <b>Phase 6 · E2E 자동 검사</b>입니다. 실제 브라우저를 열고 손님처럼 클릭하는 검사 5가지를 만듭니다. 전체 진행 상황은 <a href="index.html">진행 현황</a>에서 볼 수 있습니다.
+</footer>
+
+</div>
+</body>
+</html>

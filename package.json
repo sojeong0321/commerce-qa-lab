@@ -11,10 +11,17 @@
     "start": "node app/server.js",
     "start:test": "NODE_ENV=test DB_PATH=data/test.db PORT=3100 node app/server.js",
     "db:setup": "node app/db/setup.js",
-    "test:unit": "node --test \"tests/unit/**/*.test.js\""
+    "test:unit": "node --test \"tests/unit/**/*.test.js\"",
+    "test:api": "playwright test --project=api",
+    "test": "npm run test:unit && npm run test:api",
+    "report": "playwright show-report"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",
     "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "typescript": "^7.0.2"
   }
 }
