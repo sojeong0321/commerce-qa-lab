@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>장바구니 | commerce-qa-lab</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/">commerce-qa-lab</a>
+    <nav aria-label="주요 메뉴">
+      <a href="/">상품</a>
+      <a href="/cart.html" aria-current="page">장바구니 <span id="cart-count" class="count" data-testid="cart-count">0</span></a>
+    </nav>
+    <label class="user-picker">사용자 <select id="user-select"></select></label>
+  </header>
+
+  <main>
+    <h1>장바구니</h1>
+    <p id="status-message" class="message message-ok" role="status" hidden></p>
+    <p id="error-message" class="message message-error" role="alert" hidden></p>
+    <section id="cart-content" aria-label="장바구니 상품"></section>
+  </main>
+
+  <script type="module" src="/js/cart.js"></script>
+</body>
+</html>
