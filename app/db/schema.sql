@@ -56,6 +56,7 @@ CREATE TABLE orders (
   discount_amount INTEGER NOT NULL DEFAULT 0,
   total_amount    INTEGER NOT NULL CHECK (total_amount >= 0),
   user_coupon_id  INTEGER REFERENCES user_coupons(id),
+  coupon_code     TEXT,                                  -- 주문 시점 snapshot (쿠폰 이름이 바뀌어도 주문 기록은 그대로)
   created_at      TEXT NOT NULL,
   canceled_at     TEXT
 );

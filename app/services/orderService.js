@@ -3,8 +3,8 @@ const { assertCanBuy } = require('./productService');
 
 function createOrderService(db, { productService, cartService, couponService }) {
   const insertOrder = db.prepare(`
-    INSERT INTO orders (user_id, status, subtotal_amount, discount_amount, total_amount, user_coupon_id, created_at)
-    VALUES (?, 'PLACED', ?, ?, ?, ?, ?)
+    INSERT INTO orders (user_id, status, subtotal_amount, discount_amount, total_amount, user_coupon_id, coupon_code, created_at)
+    VALUES (?, 'PLACED', ?, ?, ?, ?, ?, ?)
   `);
   const insertOrderItem = db.prepare(`
     INSERT INTO order_items (order_id, product_id, product_name, unit_price, quantity)
@@ -15,13 +15,8 @@ function createOrderService(db, { productService, cartService, couponService }) 
   const useCoupon = db.prepare("UPDATE user_coupons SET status = 'USED', used_at = ? WHERE id = ?");
   const restoreCoupon = db.prepare("UPDATE user_coupons SET status = 'AVAILABLE', used_at = NULL WHERE id = ?");
   const clearCart = db.prepare('DELETE FROM cart_items WHERE user_id = ?');
-  const selectOrder = db.prepare(`
-    SELECT o.*, c.code AS coupon_code
-    FROM orders o
-    LEFT JOIN user_coupons uc ON uc.id = o.user_coupon_id
-    LEFT JOIN coupons c ON c.id = uc.coupon_id
-    WHERE o.id = ?
-  `);
+  // 쿠폰 코드는 주문 시점 값을 orders에 저장해 둔다. (상품 이름/가격과 같은 snapshot 원칙)
+  const selectOrder = db.prepare('SELECT * FROM orders WHERE id = ?');
   const selectMyOrderIds = db.prepare('SELECT id FROM orders WHERE user_id = ? ORDER BY id DESC');
   const selectOrderItems = db.prepare('SELECT * FROM order_items WHERE order_id = ? ORDER BY id');
   const cancelOrderRow = db.prepare("UPDATE orders SET status = 'CANCELED', canceled_at = ? WHERE id = ?");
@@ -93,6 +88,7 @@ function createOrderService(db, { productService, cartService, couponService }) 
       amounts.discount,
       amounts.total,
       amounts.userCouponId,
+      amounts.coupon ? amounts.coupon.code : null,
       new Date().toISOString()
     );
     for (const item of cart.items) {

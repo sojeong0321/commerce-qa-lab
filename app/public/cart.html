@@ -11,7 +11,7 @@
     <a class="brand" href="/">commerce-qa-lab</a>
     <nav aria-label="주요 메뉴">
       <a href="/">상품</a>
-      <a href="/cart.html" aria-current="page">장바구니 <span id="cart-count" class="count" data-testid="cart-count">0</span></a>
+      <a href="/cart.html" aria-current="page" aria-label="장바구니">장바구니 <span id="cart-count" aria-hidden="true" class="count" data-testid="cart-count">0</span></a>
       <a href="/orders.html">주문 내역</a>
     </nav>
     <label class="user-picker">사용자 <select id="user-select"></select></label>
@@ -30,6 +30,7 @@
         <label for="coupon-code">쿠폰 코드</label>
         <input id="coupon-code" name="couponCode" type="text" autocomplete="off" placeholder="예: WELCOME5000">
         <button type="submit">적용</button>
+        <button type="button" id="coupon-clear" class="secondary-button">쿠폰 해제</button>
       </form>
       <ul id="coupon-list" class="coupon-list" aria-label="보유 쿠폰"></ul>
     </section>

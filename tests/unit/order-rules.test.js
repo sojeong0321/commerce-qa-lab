@@ -226,3 +226,124 @@ test('주문 목록은 최신 주문이 먼저 나온다', () => {
     [second.id, first.id]
   );
 });
+
+// ---------------------------------------------------------------------------
+// 점검(리뷰)에서 드러난 구멍을 메우는 테스트:
+// 상품이 2개 이상인 주문, 손님별 쿠폰 구분, 중간 실패 시 rollback
+// ---------------------------------------------------------------------------
+
+test('여러 상품 주문: 모든 상품의 재고가 각각 줄고 주문 항목도 모두 저장된다', () => {
+  const { db, cartService, orderService } = setup();
+  cartService.addItem(ALICE, MUG, 2); // 10,000 × 2
+  cartService.addItem(ALICE, SHOES, 1); // 89,000 × 1
+
+  const order = orderService.createOrder(ALICE, undefined);
+
+  assert.equal(order.items.length, 2);
+  assert.deepEqual(
+    order.items.map((i) => [i.productId, i.quantity, i.lineTotal]),
+    [
+      [MUG, 2, 20000],
+      [SHOES, 1, 89000],
+    ]
+  );
+  assert.equal(order.subtotalAmount, 109000);
+  assert.equal(stockOf(db, MUG), 18);
+  assert.equal(stockOf(db, SHOES), 2);
+});
+
+test('여러 상품 주문 취소: 모든 상품의 재고가 각각 복구된다', () => {
+  const { db, cartService, orderService } = setup();
+  cartService.addItem(ALICE, MUG, 2);
+  cartService.addItem(ALICE, SHOES, 1);
+  const order = orderService.createOrder(ALICE, 'BIG10000'); // 109,000 ≥ 100,000
+
+  orderService.cancelOrder(ALICE, order.id);
+
+  assert.equal(stockOf(db, MUG), 20);
+  assert.equal(stockOf(db, SHOES), 3);
+});
+
+test('BR-CP3: 내 쿠폰을 써도 다른 손님의 같은 쿠폰은 그대로 남는다', () => {
+  const { db, cartService, orderService } = setup();
+  cartService.addItem(ALICE, JEANS, 1);
+
+  orderService.createOrder(ALICE, 'WELCOME5000');
+
+  assert.equal(couponStatus(db, ALICE, 1), 'USED');
+  assert.equal(couponStatus(db, BOB, 1), 'AVAILABLE'); // Bob도 같은 코드의 쿠폰을 가지고 있다
+});
+
+test('BR-CP6: 취소하면 그 주문에 쓴 쿠폰만 복구되고 사용 시각도 지워진다', () => {
+  const { db, cartService, orderService } = setup();
+  cartService.addItem(ALICE, SHOES, 2); // 178,000 → BIG10000 사용 가능
+  const order = orderService.createOrder(ALICE, 'BIG10000');
+  assert.equal(couponStatus(db, ALICE, 2), 'USED');
+
+  orderService.cancelOrder(ALICE, order.id);
+
+  const restored = db.prepare('SELECT status, used_at FROM user_coupons WHERE user_id = 1 AND coupon_id = 2').get();
+  assert.deepEqual(restored, { status: 'AVAILABLE', used_at: null });
+  assert.equal(couponStatus(db, ALICE, 1), 'AVAILABLE'); // 쓰지 않은 쿠폰은 영향 없음
+});
+
+test('주문 도중 저장이 실패하면 이미 줄인 재고까지 되돌아간다 (rollback)', () => {
+  const { db, cartService, couponService, productService } = setup();
+  cartService.addItem(ALICE, JEANS, 2);
+
+  // 존재하지 않는 쿠폰 id를 돌려주도록 만들어, 재고를 줄인 "다음" 단계에서 주문 저장이 실패하게 한다.
+  const brokenCouponService = {
+    ...couponService,
+    calculateAmounts: () => ({ subtotal: 70000, discount: 0, total: 70000, coupon: null, userCouponId: 9999 }),
+  };
+  const orderService = createOrderService(db, { productService, cartService, couponService: brokenCouponService });
+
+  assert.throws(() => orderService.createOrder(ALICE, undefined));
+
+  assert.equal(stockOf(db, JEANS), 5); // 재고가 줄어든 채로 남으면 안 된다
+  assert.equal(cartService.getCart(ALICE).items.length, 1); // 장바구니도 그대로
+  assert.equal(db.prepare('SELECT COUNT(*) AS c FROM orders').get().c, 0);
+});
+
+test('취소 시각은 저장된 생성 시각 이후의 ISO 8601 값이다', () => {
+  const { cartService, orderService } = setup();
+  cartService.addItem(ALICE, MUG, 1);
+  const order = orderService.createOrder(ALICE, undefined);
+
+  const canceled = orderService.cancelOrder(ALICE, order.id);
+
+  assert.match(canceled.canceledAt, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+  assert.match(canceled.createdAt, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+  assert.ok(new Date(canceled.canceledAt) >= new Date(canceled.createdAt));
+});
+
+test('주문에 저장된 쿠폰 코드는 나중에 쿠폰 이름이 바뀌어도 그대로다', () => {
+  const { db, cartService, orderService } = setup();
+  cartService.addItem(ALICE, JEANS, 1);
+  const order = orderService.createOrder(ALICE, 'WELCOME5000');
+
+  db.prepare("UPDATE coupons SET code = 'RENAMED9999' WHERE id = 1").run();
+
+  assert.equal(orderService.getOrder(ALICE, order.id).couponCode, 'WELCOME5000');
+});
+
+test('취소 도중 실패하면 이미 복구한 재고와 쿠폰까지 되돌아간다 (rollback)', () => {
+  const { db, cartService, orderService } = setup();
+  cartService.addItem(ALICE, JEANS, 2);
+  const order = orderService.createOrder(ALICE, 'WELCOME5000');
+  assert.equal(stockOf(db, JEANS), 3);
+
+  // 재고·쿠폰을 되돌린 "다음" 단계인 주문 상태 변경에서 실패하도록 DB에 방해 장치를 건다.
+  db.exec(`
+    CREATE TRIGGER block_cancel BEFORE UPDATE OF status ON orders
+    WHEN NEW.status = 'CANCELED'
+    BEGIN SELECT RAISE(ABORT, '취소 저장 실패'); END;
+  `);
+
+  assert.throws(() => orderService.cancelOrder(ALICE, order.id));
+
+  // 주문이 취소되지 않았으므로 재고와 쿠폰도 주문 직후 상태 그대로여야 한다.
+  assert.equal(stockOf(db, JEANS), 3);
+  assert.equal(couponStatus(db, ALICE, 1), 'USED');
+  assert.equal(orderService.getOrder(ALICE, order.id).status, 'PLACED');
+});

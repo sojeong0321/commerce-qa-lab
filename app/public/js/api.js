@@ -32,11 +32,17 @@ export async function api(method, path, body) {
   const headers = { 'X-User-Id': getUserId() };
   if (body !== undefined) headers['Content-Type'] = 'application/json';
 
-  const res = await fetch(path, {
-    method,
-    headers,
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
+  let res;
+  try {
+    res = await fetch(path, {
+      method,
+      headers,
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+  } catch {
+    // 서버에 닿지 못한 경우. 브라우저 원문 메시지 대신 사람이 읽을 수 있는 안내를 보여 준다.
+    throw new ApiError(0, 'NETWORK_ERROR', '서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+  }
 
   if (res.status === 204) return null;
 

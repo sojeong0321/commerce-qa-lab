@@ -131,6 +131,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .empty { padding: 32px; text-align: center; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; list-style: none; }
 
 .order-button { width: 100%; margin-top: 16px; padding: 12px; font-size: 17px; font-weight: 700; }
+.row-warning { margin: 4px 0 0; font-size: 13px; font-weight: 400; color: var(--danger); }
+.secondary-button { background: transparent; color: var(--muted); border: 1px solid var(--line); }
 
 .order-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
 .order-card { padding: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }

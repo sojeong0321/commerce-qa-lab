@@ -16,11 +16,12 @@
 <header>
   <span class="label">Phase 0 · 설계 안내서</span>
   <h1>commerce-qa-lab, 무엇을 만들고 어떻게 검사하는가</h1>
-  <p class="lead">코딩을 몰라도 읽을 수 있게 쉬운 말과 비유로 정리했습니다. 이 문서는 "앞으로 무엇을 만들지"를 설명하는 설계도이고, 아직 만든 것은 없습니다.</p>
+  <p class="lead">코딩을 몰라도 읽을 수 있게 쉬운 말과 비유로 정리했습니다. 이 문서는 "앞으로 무엇을 만들지"를 정한 <b>2026-09-22 설계 시점의 기록</b>입니다.</p>
+  <div class="oneline" style="border-color:var(--accent)"><b>지금은 Phase 4까지 구현되어 실제로 동작합니다.</b> 이 문서의 계획과 실제 결과가 어떻게 달라졌는지는 <a href="index.html">진행 현황</a>과 각 단계 가이드에서 볼 수 있습니다.</div>
   <div class="oneline">
     한 줄 요약: <strong>작은 온라인 쇼핑몰을 직접 만든 다음</strong>, 그 쇼핑몰이 제대로 동작하는지 <strong>검사 로봇(자동화 테스트)</strong>이 매번 대신 확인하게 만드는 프로젝트입니다.
   </div>
-  <div class="meta"><span>작성일 2026-09-22</span><span>현재 단계: 설계 (Phase 0 / 10)</span></div>
+  <div class="meta"><span>작성일 2026-09-22</span><span>작성 당시 단계: 설계 (Phase 0 / 10)</span></div>
 </header>
 
 <section>
@@ -130,6 +131,7 @@
     </table>
   </div>
   <p class="muted small">표의 "딱 30,000원" 같은 경계 지점을 일부러 검사하는 것을 <b>경계값 테스트</b>라고 합니다. 버그가 가장 잘 숨는 곳이 이런 경계입니다.</p>
+  <p class="callout"><b>실제 결과:</b> 설계 때는 부품 검사를 15개쯤으로 예상했지만, 경계값과 되돌리기(rollback) 같은 경우를 넣다 보니 Phase 4까지 125개가 되었습니다. 계획보다 늘어난 이유를 설명할 수 있다는 것도 QA의 일입니다.</p>
 </section>
 
 <section>
@@ -141,8 +143,8 @@
 
 <section>
   <span class="label">자동 실행 (CI)</span>
-  <h2>코드를 올릴 때마다 로봇이 알아서 전부 검사합니다</h2>
-  <p>코드를 GitHub(코드 보관소)에 올리면 GitHub Actions라는 기능이 자동으로 아래 순서대로 검사를 돌립니다. 사람이 버튼을 누를 필요가 없습니다.</p>
+  <h2>코드를 올릴 때마다 로봇이 알아서 전부 검사하게 만들 계획입니다</h2>
+  <p>코드를 GitHub(코드 보관소)에 올리면 GitHub Actions라는 기능이 자동으로 아래 순서대로 검사를 돌리게 만들 계획입니다. 사람이 버튼을 누를 필요가 없어집니다. <b>(Phase 7에서 구현 예정)</b></p>
   <div class="pipe" aria-label="자동 검사 순서">
     <span class="p">준비물 설치</span><span class="arr">→</span>
     <span class="p">가게 문 열기</span><span class="arr">→</span>
@@ -159,8 +161,8 @@
 
 <section>
   <span class="label">실패의 증거</span>
-  <h2>실패하면 "왜 실패했는지" 증거가 남습니다</h2>
-  <p>"안 돼요"만으로는 개발자가 고칠 수 없습니다. 수동 QA에서 버그 리포트에 캡처를 붙이던 것처럼, 로봇도 증거를 자동으로 남깁니다. 이 증거는 GitHub에서 파일로 내려받을 수 있습니다.</p>
+  <h2>실패하면 "왜 실패했는지" 증거를 남길 계획입니다</h2>
+  <p>"안 돼요"만으로는 개발자가 고칠 수 없습니다. 수동 QA에서 버그 리포트에 캡처를 붙이던 것처럼, 로봇도 증거를 자동으로 남기게 만듭니다. 이 증거는 GitHub에서 파일로 내려받을 수 있게 됩니다. <b>(Phase 8에서 구현 예정)</b></p>
   <div class="ev">
     <div class="evi"><span class="like">사진 한 장</span><h3>스크린샷</h3><p>실패한 순간의 화면을 찍어 둡니다.</p></div>
     <div class="evi"><span class="like">블랙박스 영상</span><h3>트레이스</h3><p>클릭 하나하나, 화면 변화, 주고받은 데이터를 모두 기록합니다. 나중에 되감아 보면서 원인을 찾습니다.</p></div>
@@ -190,7 +192,7 @@
   <span class="label">진행 순서</span>
   <h2>11단계로 나눠서 하나씩 완성합니다</h2>
   <ol class="phases">
-    <li class="now"><span class="no-">0</span><div><div class="t">설계</div><div class="d">무엇을 만들지, 어떻게 검사할지 정하기 (이 문서)</div></div></li>
+    <li><span class="no-">0</span><div><div class="t">설계</div><div class="d">무엇을 만들지, 어떻게 검사할지 정하기 (이 문서)</div></div></li>
     <li><span class="no-">1</span><div><div class="t">가게 뼈대 + 데이터 창고</div><div class="d">서버를 켜고, 상품·손님 정보를 저장할 곳 만들기</div></div></li>
     <li><span class="no-">2</span><div><div class="t">상품 · 장바구니</div><div class="d">진열대와 장바구니 화면, 재고 규칙</div></div></li>
     <li><span class="no-">3</span><div><div class="t">쿠폰</div><div class="d">할인 계산, 최소 금액, 사용 여부</div></div></li>
@@ -233,7 +235,7 @@
 </section>
 
 <footer>
-  Phase 0 설계가 끝났습니다. 괜찮으면 Phase 1(가게 뼈대 + 데이터 창고)부터 실제로 만들기 시작합니다.
+  이 설계로 Phase 1부터 실제 구현을 시작했습니다. 현재 진행 상황은 <a href="index.html">진행 현황</a>에서 볼 수 있습니다.
 </footer>
 
 </div>

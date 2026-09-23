@@ -42,7 +42,8 @@ function createApp({ db, env }) {
   app.use('/api/checkout', userContext(db), createCheckoutRouter(cartService, couponService));
   app.use('/api/orders', userContext(db), createOrdersRouter(orderService));
 
-  app.use('/api', notFoundHandler);
+  // /api 밖의 없는 주소도 같은 형식으로 답한다.
+  app.use(notFoundHandler);
   app.use(errorHandler);
 
   return app;

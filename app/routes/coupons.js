@@ -32,6 +32,16 @@ function createCheckoutRouter(cartService, couponService) {
     res.json({
       items: cart.items,
       totalQuantity: cart.totalQuantity,
+      // 지금 주문할 수 있는 상태인지 미리 알려 준다. 금액만 보여 주고 주문에서 거절하면 손님이 당황한다.
+      orderable: cart.orderable,
+      unavailableItems: cart.items
+        .filter((item) => !item.purchasable)
+        .map((item) => ({
+          productId: item.productId,
+          name: item.name,
+          reason: item.status !== 'ACTIVE' ? 'PRODUCT_NOT_PURCHASABLE' : 'OUT_OF_STOCK',
+          stock: item.stock,
+        })),
       subtotal: amounts.subtotal,
       discount: amounts.discount,
       total: amounts.total,

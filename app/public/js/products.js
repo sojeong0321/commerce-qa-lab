@@ -1,5 +1,5 @@
 import { api, formatWon, escapeHtml } from './api.js';
-import { initLayout, refreshCartCount, showStatus, showError } from './layout.js';
+import { initLayout, refreshCartCount, clearMessages, showStatus, showError } from './layout.js';
 
 const list = document.getElementById('product-list');
 
@@ -12,9 +12,10 @@ function badgeFor(product) {
 function renderProduct(product) {
   const nameId = `product-${product.id}-name`;
   const qtyId = `qty-${product.id}`;
+  // 수량 입력칸 이름에 상품명을 넣는다. "수량"만 쓰면 화면에 같은 이름이 여러 개라 테스트가 하나를 고를 수 없다.
   const buyForm = product.purchasable
-    ? `<form class="add-form" data-product-id="${product.id}" novalidate>
-         <label for="${qtyId}">수량</label>
+    ? `<form class="add-form" data-product-id="${escapeHtml(product.id)}" novalidate>
+         <label for="${qtyId}">${escapeHtml(product.name)} 수량</label>
          <input id="${qtyId}" name="quantity" type="number" min="1" step="1" value="1" inputmode="numeric">
          <button type="submit">장바구니 담기</button>
        </form>`
@@ -41,6 +42,11 @@ async function loadProducts() {
 list.addEventListener('submit', async (event) => {
   event.preventDefault();
   const form = event.target;
+  const button = form.querySelector('button[type="submit"]');
+  if (button.disabled) return; // 연타로 두 번 담기는 것을 막는다.
+  button.disabled = true;
+  clearMessages();
+
   const productId = Number(form.dataset.productId);
   const quantity = Number(form.elements.quantity.value);
   const name = form.closest('article').querySelector('h2').textContent;
@@ -51,11 +57,17 @@ list.addEventListener('submit', async (event) => {
     await refreshCartCount();
   } catch (error) {
     showError(error.message);
+  } finally {
+    button.disabled = false;
   }
 });
 
 try {
   await initLayout();
+} catch (error) {
+  showError(error.message);
+}
+try {
   await loadProducts();
 } catch (error) {
   showError(error.message);

@@ -30,6 +30,10 @@ const orderId = new URLSearchParams(window.location.search).get('orderId');
 
 try {
   await initLayout();
+} catch (error) {
+  showError(error.message);
+}
+try {
   if (!orderId) throw new Error('주문번호가 없습니다. 주문 내역에서 확인해 주세요.');
   render(await api('GET', `/api/orders/${orderId}`));
 } catch (error) {

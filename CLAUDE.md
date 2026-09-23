@@ -41,6 +41,7 @@ Manual SW QA 경력자가 **QA Automation Engineer로 전환하기 위한 GitHub
    - Phase 5 이전에는 프로젝트 밖(scratchpad)의 임시 Playwright 스크립트로 확인하고, 그 스크립트는 저장소에 커밋하지 않는다.
 4. 브라우저/E2E 확인은 **3회 연속 통과**해야 한다. (테스트 독립성·안정성 확인)
 5. 가능하면 **일부러 버그를 주입해 테스트가 실패하는지** 확인하고 즉시 원복한다. (가짜 통과 방지)
+   - 원복은 `git checkout --` 대신 **작업 전 파일 복사본**으로 한다. git으로 되돌리면 아직 커밋하지 않은 작업까지 사라진다. (실제로 한 번 사고가 났다)
 6. 발견한 버그는 고치고, 같은 문제가 재발하면 잡히도록 검사 기준을 추가한다.
 
 ## 단계별 HTML 가이드 (매 Phase 필수)
@@ -75,8 +76,13 @@ Phase를 끝낼 때마다 `docs/`에 **코딩을 모르는 사람도 이해할 �
 - DB가 하나이므로 Playwright는 `workers: 1`, `fullyParallel: false`. (결정성 우선, 이유를 문서에 남긴다)
 - 기대값은 seed 상수에서 가져온다. 매직 넘버를 쓰지 않는다.
 - Locator 우선순위: `getByRole` → `getByLabel` → `getByTestId`. XPath와 brittle CSS selector 금지.
+- **목록 안의 요소는 카드/행으로 범위를 좁힌 뒤 찾는다.** (`getByRole('article', { name: '머그컵' }).getByTestId(...)`) 목록에서 반복되는 testid를 화면 전체에서 찾으면 테스트가 멈춘다.
+- 화면에 같은 접근 이름이 두 개 이상 생기지 않게 한다. (예: 수량 입력칸은 "머그컵 수량")
+- 시간대·로캘에 따라 달라지는 표시(날짜 등)를 assertion 대상으로 두지 않는다.
 - 화면을 만들 때 접근 가능한 이름(버튼 텍스트, label, aria-label)을 먼저 설계한다.
-- 상태 변화 검증은 DB를 직접 읽지 않고 공개 조회 API로 한다(Black-box).
+- API/E2E 테스트에서 상태 변화 검증은 DB를 직접 읽지 않고 공개 조회 API로 한다(Black-box). 서비스 단위 테스트는 메모리 DB를 직접 확인해도 된다.
+- **테스트가 실제로 버그를 잡는지 주기적으로 변이 테스트로 확인한다.** 코드를 일부러 망가뜨렸을 때 실패하지 않으면 그 구멍을 메운다.
+- 반복문(상품마다 처리)은 항목이 2개 이상인 성공 케이스를 반드시 포함한다. 1개짜리 케이스만 있으면 "첫 항목만 처리" 버그를 못 잡는다.
 
 ## Seed 데이터 (테스트 기대값의 기준)
 
@@ -105,6 +111,8 @@ npm run test:unit  # 단위 테스트
 
 ## 현재 상태 (Phase를 끝낼 때마다 갱신할 것)
 
-- 완료: Phase 0~4. 단위 테스트 **77개** 통과.
-- 동작: 화면 4개(상품, 장바구니, 주문 완료, 주문 내역), API 15개(상품·장바구니·쿠폰·checkout preview·주문/취소).
+- 완료: Phase 0~4 + 중간 점검/보완. 테스트 **125개** 통과 (`tests/unit/`: 순수 38 + DB 통합 57 + HTTP 30).
+- 동작: 화면 4개(상품, 장바구니, 주문 완료, 주문 내역), API 14개 + 테스트 전용 `POST /api/test/reset`.
+- 중간 점검에서 서버 5건·화면 6건 수정, 검사 48개 추가. 상세: `docs/phase-4-5-review-guide.html`
+- 응답 추가 사항: `GET /api/cart`와 checkout preview는 `purchasable`/`orderable`/`unavailableItems`를 포함한다. 주문에는 `coupon_code` snapshot이 저장된다.
 - 다음: **Phase 5 — API 자동화** (지금까지 curl과 임시 스크립트로 확인한 내용을 프로젝트 안 Playwright API 테스트로 옮긴다)

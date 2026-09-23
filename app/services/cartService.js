@@ -24,11 +24,14 @@ function createCartService(db, productService) {
       lineTotal: row.price * row.quantity,
       stock: row.stock,
       status: row.status,
+      // 지금 이 수량 그대로 주문할 수 있는지. (담아 둔 사이 품절되거나 판매 중지될 수 있다)
+      purchasable: row.status === 'ACTIVE' && row.quantity <= row.stock,
     }));
     return {
       items,
       totalQuantity: items.reduce((sum, item) => sum + item.quantity, 0),
       subtotal: calculateSubtotal(items),
+      orderable: items.length > 0 && items.every((item) => item.purchasable),
     };
   }
 
@@ -57,11 +60,15 @@ function createCartService(db, productService) {
   });
 
   // BR-C3: 변경할 수량도 재고를 넘으면 안 된다.
+  // 단, 수량을 "줄이는" 것은 항상 허용한다. 담아 둔 사이 품절되었더라도
+  // 줄이기까지 막으면 손님이 장바구니를 정리할 방법이 삭제밖에 없어진다.
   const changeQuantity = db.transaction((userId, productId, quantity) => {
-    findItemOrThrow(userId, productId);
+    const item = findItemOrThrow(userId, productId);
     const product = productService.getProduct(productId);
 
-    assertCanBuy(product, quantity);
+    if (quantity > item.quantity) {
+      assertCanBuy(product, quantity);
+    }
 
     updateItem.run(quantity, userId, productId);
   });
