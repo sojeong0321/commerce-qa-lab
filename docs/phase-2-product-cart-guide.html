@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 2 · 상품과 장바구니</title>
+<link rel="stylesheet" href="guide.css">
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="crumbs">
+    <a href="index.html">진행 현황</a><span>·</span>
+    <a href="phase-1-skeleton-guide.html">Phase 1</a><span>·</span>
+    <span>Phase 2</span>
+  </div>
+  <span class="label">Phase 2 · 완료</span>
+  <h1>진열대와 장바구니가 생겼다</h1>
+  <p class="lead">이제 브라우저를 열면 상품이 보이고, 실제로 장바구니에 담고 수량을 바꾸고 뺄 수 있습니다.</p>
+  <div class="oneline">
+    한 줄 요약: <strong>손님이 보는 첫 화면 두 장</strong>을 만들고, <strong>"재고보다 많이 담을 수 없다"는 규칙</strong>을 서버가 지키게 했습니다.
+  </div>
+</header>
+
+<section>
+  <span class="label">화면</span>
+  <h2>실제 화면</h2>
+  <figure class="shot">
+    <img src="images/phase2-products.png" alt="상품 목록 화면. 상품 5개가 카드로 보이고 품절과 판매 중지 상품은 구매 불가로 표시되어 있다.">
+    <figcaption>상품 목록. 가격과 남은 재고가 보이고, 품절(에코백)과 판매 중지(단종 모자) 상품은 담기 버튼이 꺼져 있습니다. 오른쪽 위에서 손님을 바꿀 수 있습니다.</figcaption>
+  </figure>
+  <figure class="shot">
+    <img src="images/phase2-cart.png" alt="장바구니 화면. 상품 두 줄과 수량 변경, 삭제 버튼, 상품 금액 합계가 보인다.">
+    <figcaption>장바구니. 수량을 바꾸거나 상품을 뺄 수 있고, 아래에 합계가 나옵니다. 위쪽 빨간 영역은 잘못된 수량을 넣었을 때 서버가 알려 준 이유입니다.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <span class="label">규칙</span>
+  <h2>서버가 지키는 약속</h2>
+  <p>규칙은 모두 <mark>서버가 최종 판단</mark>합니다. 화면에서 아무리 조작해도 서버가 거절하면 담기지 않습니다. 화면만 믿으면 뚫리는 구멍이 생기기 때문입니다.</p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>상황</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>품절 상품(에코백) 담기</td><td class="no">거절 · 품절된 상품입니다</td></tr>
+        <tr><td>판매 중지 상품(단종 모자) 담기</td><td class="no">거절 · 판매 중지된 상품입니다</td></tr>
+        <tr><td>재고 5개인 상품을 6개 담기</td><td class="no">거절 · 남은 재고와 요청 수량을 함께 알려 줌</td></tr>
+        <tr><td>3개 담아 둔 상태에서 3개 더 담기</td><td class="no">거절 · 합쳐서 6개는 재고를 넘음</td></tr>
+        <tr><td>수량을 재고와 똑같이(5개) 맞추기</td><td class="ok">허용 · 경계값</td></tr>
+        <tr><td>수량에 0, -1, 1.5, "abc" 입력</td><td class="no">거절 · 1 이상의 정수만 허용</td></tr>
+        <tr><td>장바구니에 담기</td><td class="ok">재고는 줄지 않음 · 재고는 주문할 때만 줄어듦</td></tr>
+        <tr><td>다른 손님(Bob)의 장바구니</td><td class="ok">서로 분리됨 · 남의 장바구니는 건드릴 수 없음</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <span class="label">검사 결과</span>
+  <h2>세 가지 방식으로 확인했습니다</h2>
+  <div class="counts">
+    <div><b>44</b><span>부품 검사 (자동, Phase 1 회귀 포함)</span></div>
+    <div><b>36</b><span>서버에 직접 요청해 확인</span></div>
+    <div><b>15</b><span>실제 브라우저 클릭 확인</span></div>
+  </div>
+  <p class="muted small">브라우저 확인은 3번 연속 통과했습니다. 이때 쓴 Playwright는 임시 폴더에서만 사용했고 프로젝트에는 넣지 않았습니다. 정식 자동 검사는 Phase 5~6에서 만듭니다.</p>
+</section>
+
+<section>
+  <span class="label">찾은 버그</span>
+  <h2>확인하는 과정에서 나온 문제 2건</h2>
+  <p>둘 다 코드만 보고는 알기 어렵고, 실제로 클릭해 봤기 때문에 드러난 문제입니다.</p>
+  <div class="bug">
+    <span class="found">브라우저 확인에서 발견</span>
+    <h3>수량 0을 넣으면 요청 자체가 가지 않았다</h3>
+    <p>수량 칸에 0을 넣고 담기를 누르면 브라우저의 기본 입력 검사가 제출을 조용히 막았습니다. 서버까지 가지 않으니 아무 일도 일어나지 않고, 화면에는 직전 에러 메시지가 그대로 남아 손님이 혼란스러운 상태가 됐습니다.</p>
+    <p><b>고친 방법:</b> 브라우저 자체 검사를 끄고 서버가 판단하게 했습니다. 규칙의 주인을 한 곳으로 모은 셈입니다.</p>
+  </div>
+  <div class="bug">
+    <span class="found">화면 사진 확인에서 발견</span>
+    <h3>넓은 화면에서 버튼이 카드 밖으로 넘쳤다</h3>
+    <p>"장바구니 담기" 버튼이 두 줄로 꺾이거나 상품 카드 경계를 넘어갔습니다. 버튼을 수량 입력칸 아래 줄로 내려서 고쳤습니다.</p>
+  </div>
+</section>
+
+<section>
+  <span class="label">QA 관점</span>
+  <h2>이 단계에서 신경 쓴 것</h2>
+  <div class="rules">
+    <div class="rule"><h3>실패했을 때 상태가 그대로인가</h3><p>거절당한 뒤 장바구니가 변하지 않았는지까지 확인합니다. "거절됨"만 보고 넘어가면 절반만 검사한 것입니다.</p></div>
+    <div class="rule"><h3>경계값</h3><p>재고와 똑같은 수량(허용)과 하나 많은 수량(거절)을 나란히 확인했습니다. 버그는 이 경계에 숨습니다.</p></div>
+    <div class="rule"><h3>검사 로봇이 잡기 쉬운 화면</h3><p>버튼과 입력칸에 사람이 읽는 이름("장바구니 담기", "데님 팬츠 수량")을 붙였습니다. 화면 구조가 바뀌어도 검사가 잘 깨지지 않습니다.</p></div>
+    <div class="rule"><h3>손님 간 분리</h3><p>Alice와 Bob의 장바구니가 섞이지 않는지 확인했습니다. 나중에 주문·쿠폰 검사의 전제 조건이 됩니다.</p></div>
+  </div>
+</section>
+
+<footer>
+  다음: <a href="phase-3-coupon-guide.html">Phase 3 · 쿠폰</a> — 할인 금액과 최소 주문금액 규칙이 생깁니다.
+</footer>
+
+</div>
+</body>
+</html>

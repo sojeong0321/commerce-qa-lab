@@ -2,6 +2,13 @@ import { api, formatWon, escapeHtml } from './api.js';
 import { initLayout, refreshCartCount, showStatus, showError } from './layout.js';
 
 const container = document.getElementById('cart-content');
+const couponSection = document.getElementById('coupon-section');
+const couponForm = document.getElementById('coupon-form');
+const couponInput = document.getElementById('coupon-code');
+const couponList = document.getElementById('coupon-list');
+
+// 적용 중인 쿠폰 코드. 금액은 항상 서버가 다시 계산한다. (BR-O4)
+let appliedCouponCode = null;
 
 function renderRow(item) {
   const qtyId = `cart-qty-${item.productId}`;
@@ -21,11 +28,20 @@ function renderRow(item) {
     </tr>`;
 }
 
-function renderCart(cart) {
-  if (cart.items.length === 0) {
+function renderCart(checkout) {
+  couponSection.hidden = checkout.items.length === 0;
+
+  if (checkout.items.length === 0) {
     container.innerHTML = '<p class="empty">장바구니가 비어 있습니다. <a href="/">상품 보러 가기</a></p>';
     return;
   }
+
+  const couponRow = checkout.coupon
+    ? `<div class="applied-coupon">
+         <dt>할인 금액 <span class="badge badge-ok">${escapeHtml(checkout.coupon.code)}</span></dt>
+         <dd data-testid="cart-discount">-${formatWon(checkout.discount)}</dd>
+       </div>`
+    : `<div><dt>할인 금액</dt><dd data-testid="cart-discount">${formatWon(0)}</dd></div>`;
 
   container.innerHTML = `
     <div class="table-scroll">
@@ -33,16 +49,52 @@ function renderCart(cart) {
         <thead>
           <tr><th scope="col">상품</th><th scope="col">가격</th><th scope="col">수량</th><th scope="col">금액</th><th scope="col"><span class="visually-hidden">삭제</span></th></tr>
         </thead>
-        <tbody>${cart.items.map(renderRow).join('')}</tbody>
+        <tbody>${checkout.items.map(renderRow).join('')}</tbody>
       </table>
     </div>
     <dl class="summary">
-      <div><dt>상품 금액</dt><dd data-testid="cart-subtotal">${formatWon(cart.subtotal)}</dd></div>
+      <div><dt>상품 금액</dt><dd data-testid="cart-subtotal">${formatWon(checkout.subtotal)}</dd></div>
+      ${couponRow}
+      <div class="total-row"><dt>결제 예정 금액</dt><dd data-testid="cart-total">${formatWon(checkout.total)}</dd></div>
     </dl>`;
 }
 
+function renderCoupons(coupons) {
+  couponList.innerHTML = coupons
+    .map(
+      (c) => `<li>
+        <b>${escapeHtml(c.code)}</b>
+        <span>${formatWon(c.discountAmount)} 할인 · ${formatWon(c.minOrderAmount)} 이상</span>
+        <span class="badge ${c.status === 'AVAILABLE' ? 'badge-ok' : 'badge-muted'}">${c.status === 'AVAILABLE' ? '사용 가능' : '사용 완료'}</span>
+      </li>`
+    )
+    .join('');
+}
+
+// 장바구니와 쿠폰 적용 결과를 서버에서 다시 받아 화면을 그린다.
 async function loadCart() {
-  renderCart(await api('GET', '/api/cart'));
+  const checkout = await api('POST', '/api/checkout/preview', { couponCode: appliedCouponCode ?? undefined });
+  renderCart(checkout);
+  return checkout;
+}
+
+// 수량이 바뀌어 최소 주문금액에 미달하면 쿠폰을 자동으로 뗀다.
+// 안내 문구는 여기서 바로 띄우지 않고 돌려준다. 호출한 쪽의 성공 메시지가 덮어쓰지 않도록.
+async function reloadCheckout() {
+  try {
+    return { checkout: await loadCart(), notice: null };
+  } catch (error) {
+    if (appliedCouponCode && error.code === 'COUPON_MIN_AMOUNT_NOT_MET') {
+      appliedCouponCode = null;
+      return { checkout: await loadCart(), notice: `${error.message} 쿠폰 적용을 해제했습니다.` };
+    }
+    throw error;
+  }
+}
+
+async function refreshCoupons() {
+  const { coupons } = await api('GET', '/api/coupons');
+  renderCoupons(coupons);
 }
 
 function productIdOf(element) {
@@ -57,12 +109,14 @@ container.addEventListener('submit', async (event) => {
   const name = form.closest('tr').querySelector('th').textContent;
 
   try {
-    renderCart(await api('PATCH', `/api/cart/items/${productId}`, { quantity }));
-    showStatus(`${name} 수량을 ${quantity}개로 변경했습니다.`);
+    await api('PATCH', `/api/cart/items/${productId}`, { quantity });
+    const { notice } = await reloadCheckout();
+    if (notice) showError(notice);
+    else showStatus(`${name} 수량을 ${quantity}개로 변경했습니다.`);
     await refreshCartCount();
   } catch (error) {
     showError(error.message);
-    await loadCart(); // 실패하면 입력칸을 서버의 실제 수량으로 되돌린다.
+    await reloadCheckout(); // 실패하면 입력칸을 서버의 실제 수량으로 되돌린다.
   }
 });
 
@@ -73,17 +127,39 @@ container.addEventListener('click', async (event) => {
 
   try {
     await api('DELETE', `/api/cart/items/${productId}`);
-    await loadCart();
-    showStatus(`${name}을(를) 장바구니에서 삭제했습니다.`);
+    const { notice } = await reloadCheckout();
+    if (notice) showError(notice);
+    else showStatus(`${name}을(를) 장바구니에서 삭제했습니다.`);
     await refreshCartCount();
   } catch (error) {
     showError(error.message);
   }
 });
 
+couponForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const code = couponInput.value.trim();
+  const previous = appliedCouponCode;
+  appliedCouponCode = code === '' ? null : code;
+
+  try {
+    const checkout = await loadCart();
+    if (checkout.coupon) {
+      showStatus(`쿠폰 ${checkout.coupon.code}을(를) 적용했습니다. ${formatWon(checkout.discount)} 할인`);
+    } else {
+      showStatus('쿠폰 적용을 해제했습니다.');
+    }
+  } catch (error) {
+    appliedCouponCode = previous; // 적용에 실패하면 이전 상태를 유지한다.
+    showError(error.message);
+    await loadCart();
+  }
+});
+
 try {
   await initLayout();
   await loadCart();
+  await refreshCoupons();
 } catch (error) {
   showError(error.message);
 }

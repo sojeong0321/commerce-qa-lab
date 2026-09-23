@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 3 · 쿠폰</title>
+<link rel="stylesheet" href="guide.css">
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="crumbs">
+    <a href="index.html">진행 현황</a><span>·</span>
+    <a href="phase-2-product-cart-guide.html">Phase 2</a><span>·</span>
+    <span>Phase 3</span>
+  </div>
+  <span class="label">Phase 3 · 완료</span>
+  <h1>쿠폰을 넣으면 금액이 깎인다</h1>
+  <p class="lead">장바구니에서 쿠폰 코드를 넣으면 할인 금액과 결제 예정 금액이 바로 바뀝니다. 조건을 못 채우면 이유를 알려 주고 적용하지 않습니다.</p>
+  <div class="oneline">
+    한 줄 요약: <strong>5,000원 할인 쿠폰</strong>을 만들고, <strong>"3만 원 이상일 때만 사용 가능"</strong>이라는 조건과 <strong>"한 번 쓰면 끝"</strong>이라는 규칙을 서버가 판단하게 했습니다.
+  </div>
+</header>
+
+<section>
+  <span class="label">화면</span>
+  <h2>실제 화면</h2>
+  <figure class="shot">
+    <img src="images/phase3-cart-coupon.png" alt="장바구니 화면에 쿠폰이 적용되어 상품 금액 35,000원, 할인 -5,000원, 결제 예정 금액 30,000원이 표시된다.">
+    <figcaption>쿠폰을 적용한 모습. 상품 금액 35,000원에서 5,000원이 깎여 결제 예정 금액이 30,000원이 됩니다. 아래에는 내가 가진 쿠폰과 사용 가능 여부가 보입니다.</figcaption>
+  </figure>
+  <figure class="shot">
+    <img src="images/phase3-coupon-rejected.png" alt="상품 금액 20,000원 상태에서 쿠폰을 적용하려다 거절당해 안내 문구가 표시된 화면.">
+    <figcaption>조건을 못 채운 경우. "30,000원 이상 주문 시 사용할 수 있는 쿠폰입니다. (현재 20,000원)"이라고 <b>얼마가 모자란지</b> 알려 주고, 금액은 그대로 둡니다.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <span class="label">규칙</span>
+  <h2>쿠폰이 지켜야 하는 약속</h2>
+  <div class="rules">
+    <div class="rule"><span class="who">할인</span><h3>정액 할인</h3><p>WELCOME5000은 5,000원, BIG10000은 10,000원을 깎습니다.</p></div>
+    <div class="rule"><span class="who">조건</span><h3>최소 주문금액 이상</h3><p>WELCOME5000은 30,000원 이상, BIG10000은 100,000원 이상일 때만 쓸 수 있습니다.</p></div>
+    <div class="rule"><span class="who">소유</span><h3>내게 발급된 쿠폰만</h3><p>Bob은 BIG10000을 받지 않았기 때문에 코드를 알아도 쓸 수 없습니다.</p></div>
+    <div class="rule"><span class="who">재사용</span><h3>한 번 쓰면 끝</h3><p>사용 완료된 쿠폰은 "이미 사용한 쿠폰입니다"로 거절합니다.</p></div>
+    <div class="rule"><span class="who">안전장치</span><h3>할인이 상품 금액을 넘지 않는다</h3><p>결제 금액이 음수가 되는 일은 없습니다.</p></div>
+    <div class="rule policy"><span class="who">중요</span><h3>금액을 미리 계산해 보는 것만으로는 쿠폰이 소모되지 않는다</h3><p>화면에서 쿠폰을 넣어 보는 것은 "얼마가 될지 물어보기"일 뿐입니다. 쿠폰이 실제로 사용 처리되는 시점은 <b>주문이 생성되는 순간</b>뿐입니다. (Phase 4)</p></div>
+  </div>
+</section>
+
+<section>
+  <span class="label">QA 관점</span>
+  <h2>경계값: 딱 30,000원이면 되는가</h2>
+  <p>"30,000원 <b>이상</b>"이라는 문장은 30,000원을 포함합니다. 그런데 프로그램에서는 이 한 글자 차이로 버그가 자주 납니다. 그래서 금액을 다음 세 지점에서 확인했습니다.</p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>상품 금액</th><th>기대 결과</th><th>확인 방법</th></tr></thead>
+      <tbody>
+        <tr><td>29,999원</td><td class="no">쿠폰 사용 불가</td><td>부품 검사(계산 함수만 떼어서)</td></tr>
+        <tr><td>30,000원 (머그컵 3개)</td><td class="ok">쿠폰 사용 가능</td><td>부품 검사 + 서버 요청 + 브라우저 클릭</td></tr>
+        <tr><td>30,001원</td><td class="ok">쿠폰 사용 가능</td><td>부품 검사</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="callout">초기 상품에 <b>10,000원짜리 머그컵</b>을 넣어 둔 이유가 여기 있습니다. 3개면 정확히 30,000원이 되어 경계값을 실제 화면에서도 확인할 수 있습니다. 테스트하기 좋은 데이터를 미리 설계해 두는 것도 QA의 일입니다.</p>
+</section>
+
+<section>
+  <span class="label">검사 결과</span>
+  <h2>확인한 내용</h2>
+  <div class="counts">
+    <div><b>61</b><span>부품 검사 (이전 단계 회귀 포함)</span></div>
+    <div><b>21</b><span>서버에 직접 요청해 확인</span></div>
+    <div><b>11</b><span>실제 브라우저 클릭 확인</span></div>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>상황</th><th>결과</th><th>함께 확인한 것</th></tr></thead>
+      <tbody>
+        <tr><td>35,000원에 WELCOME5000</td><td class="ok">할인 5,000원 · 결제 30,000원</td><td>쿠폰은 아직 사용되지 않은 상태 유지</td></tr>
+        <tr><td>20,000원에 WELCOME5000</td><td class="no">거절 · 얼마가 모자란지 안내</td><td>금액 변화 없음</td></tr>
+        <tr><td>30,000원에 WELCOME5000</td><td class="ok">적용 · 결제 25,000원</td><td>경계값</td></tr>
+        <tr><td>Bob이 BIG10000 사용</td><td class="no">거절 · 사용할 수 있는 쿠폰이 아님</td><td>없는 코드와 같은 응답으로 통일</td></tr>
+        <tr><td>이미 사용한 쿠폰</td><td class="no">거절 · 이미 사용한 쿠폰</td><td>금액 조건보다 먼저 판단</td></tr>
+        <tr><td>소문자 welcome5000</td><td class="no">거절</td><td>코드는 대소문자를 구분</td></tr>
+        <tr><td>쿠폰 적용 후 수량을 줄여 금액 미달</td><td class="ok">쿠폰 자동 해제 + 이유 안내</td><td>결제 금액이 잘못 유지되지 않음</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <span class="label">찾은 문제</span>
+  <h2>확인 과정에서 나온 2건</h2>
+  <div class="bug">
+    <span class="found">앱 버그 · 브라우저 확인에서 발견</span>
+    <h3>쿠폰이 왜 빠졌는지 손님이 알 수 없었다</h3>
+    <p>쿠폰을 적용한 뒤 수량을 줄여 30,000원 아래로 내려가면, 쿠폰이 자동으로 해제되면서 이유가 잠깐 표시됐다가 곧바로 "수량을 변경했습니다"라는 성공 메시지에 덮였습니다. 손님 입장에서는 할인이 소리 없이 사라진 것처럼 보입니다.</p>
+    <p><b>고친 방법:</b> 알려야 할 이유가 있으면 성공 메시지보다 먼저 보이도록 순서를 정리했습니다. 화면 값(결제 금액)만 봤다면 통과했을 문제이고, <b>손님이 이해할 수 있는가</b>를 함께 봤기 때문에 잡혔습니다.</p>
+  </div>
+  <div class="bug">
+    <span class="found">검사 스크립트 문제 · 자동화 관점</span>
+    <h3>페이지 새로고침이 겹쳐 검사가 깨졌다</h3>
+    <p>손님을 바꾸면 화면이 스스로 새로고침되는데, 그 사이에 검사 스크립트가 또 새로고침을 걸어 충돌했습니다. 앱의 버그는 아니지만, 이런 타이밍 문제가 <b>가끔 실패하는 불안정한 검사</b>의 대표적인 원인입니다.</p>
+    <p><b>고친 방법:</b> "몇 초 기다리기" 대신 "손님 선택이 실제로 바뀔 때까지 기다리기"라는 분명한 조건을 넣었습니다. Phase 6에서 같은 원칙을 그대로 씁니다.</p>
+  </div>
+</section>
+
+<footer>
+  다음 단계는 <b>Phase 4 · 주문과 취소</b>입니다. 주문하면 재고가 줄고, 취소하면 재고와 쿠폰이 돌아옵니다. 전체 진행 상황은 <a href="index.html">진행 현황</a>에서 볼 수 있습니다.
+</footer>
+
+</div>
+</body>
+</html>

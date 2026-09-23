@@ -20,7 +20,18 @@
     <h1>장바구니</h1>
     <p id="status-message" class="message message-ok" role="status" hidden></p>
     <p id="error-message" class="message message-error" role="alert" hidden></p>
+
     <section id="cart-content" aria-label="장바구니 상품"></section>
+
+    <section id="coupon-section" class="coupon-section" aria-labelledby="coupon-heading" hidden>
+      <h2 id="coupon-heading">쿠폰</h2>
+      <form id="coupon-form" class="coupon-form" novalidate>
+        <label for="coupon-code">쿠폰 코드</label>
+        <input id="coupon-code" name="couponCode" type="text" autocomplete="off" placeholder="예: WELCOME5000">
+        <button type="submit">적용</button>
+      </form>
+      <ul id="coupon-list" class="coupon-list" aria-label="보유 쿠폰"></ul>
+    </section>
   </main>
 
   <script type="module" src="/js/cart.js"></script>
