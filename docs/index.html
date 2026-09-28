@@ -13,7 +13,7 @@
   <span class="label">진행 현황</span>
   <h1>commerce-qa-lab 단계별 가이드</h1>
   <p class="lead">작은 온라인 쇼핑몰을 직접 만들고, 그 쇼핑몰을 검사 로봇이 자동으로 확인하게 만드는 프로젝트입니다. 각 단계마다 무엇을 만들었고 어떻게 확인했는지 코딩을 몰라도 읽을 수 있게 정리했습니다.</p>
-  <div class="oneline">현재 <strong>Phase 5까지 완료</strong>. 쇼핑몰이 처음부터 끝까지 동작하고, 자동 검사 <strong>198개</strong>(부품·서버 125 + API 73)가 통과합니다.</div>
+  <div class="oneline">현재 <strong>Phase 6까지 완료</strong>. 쇼핑몰이 처음부터 끝까지 동작하고, 자동 검사 <strong>205개</strong>(부품·서버 125 + API 73 + 브라우저 7)가 통과합니다.</div>
 </header>
 
 <section>
@@ -26,8 +26,8 @@
     <li><span class="no-">3</span><div><div class="t"><a href="phase-3-coupon-guide.html">쿠폰</a></div><div class="d">할인 계산, 최소 주문금액, 재사용 차단 · 완료 (검사 61개)</div></div></li>
     <li><span class="no-">4</span><div><div class="t"><a href="phase-4-order-cancel-guide.html">주문 · 취소 · 재고</a></div><div class="d">주문하면 재고 감소, 취소하면 재고와 쿠폰 복구 · 완료 (검사 77개)</div></div></li>
     <li><span class="no-">＋</span><div><div class="t"><a href="phase-4-5-review-guide.html">중간 점검과 보완</a></div><div class="d">일부러 버그를 넣어 검사의 구멍을 찾고, 앱·화면 버그 11건 수정 · 완료 (검사 125개)</div></div></li>
-    <li class="now"><span class="no-">5</span><div><div class="t"><a href="phase-5-api-automation-guide.html">API 자동 검사</a></div><div class="d">실제 서버에 요청을 보내는 Playwright 검사 73개 · 완료 (4초)</div></div></li>
-    <li><span class="no-">6</span><div><div class="t">E2E 자동 검사</div><div class="d">실제 브라우저로 손님 흐름 5가지</div></div></li>
+    <li><span class="no-">5</span><div><div class="t"><a href="phase-5-api-automation-guide.html">API 자동 검사</a></div><div class="d">실제 서버에 요청을 보내는 Playwright 검사 73개 · 완료 (4초)</div></div></li>
+    <li class="now"><span class="no-">6</span><div><div class="t"><a href="phase-6-e2e-guide.html">E2E 자동 검사</a></div><div class="d">실제 브라우저로 손님 여정 5가지 · 완료 (5초)</div></div></li>
     <li><span class="no-">7</span><div><div class="t">자동 실행 (CI)</div><div class="d">코드를 올리면 GitHub가 모든 검사를 자동 실행</div></div></li>
     <li><span class="no-">8</span><div><div class="t">실패 증거 · 보고서</div><div class="d">스크린샷, 트레이스, HTML 리포트</div></div></li>
     <li><span class="no-">9</span><div><div class="t">문서 정리</div><div class="d">채용 담당자용 README와 설명 문서</div></div></li>
@@ -39,15 +39,15 @@
   <span class="label">지금 상태</span>
   <h2>현재 동작하는 것</h2>
   <div class="counts">
-    <div><b>198</b><span>자동 검사 (모두 통과)</span></div>
+    <div><b>205</b><span>자동 검사 (모두 통과)</span></div>
     <div><b>4</b><span>화면 (상품, 장바구니, 주문 완료, 주문 내역)</span></div>
     <div><b>14</b><span>동작하는 API (+ 테스트 전용 1개)</span></div>
   </div>
-  <p class="muted small">검사 198개의 구성: 순수 계산 38개, 데이터베이스까지 함께 확인 57개, 서버를 띄워 확인 30개, Playwright API 검사 73개입니다. 브라우저를 여는 E2E 검사는 Phase 6에서 추가되고, Phase 7부터 GitHub에서 자동 실행됩니다.</p>
+  <p class="muted small">검사 205개의 구성: 순수 계산 38개, 데이터베이스까지 함께 확인 57개, 서버를 띄워 확인 30개, Playwright API 검사 73개, 실제 브라우저 검사 7개입니다. Phase 7부터 GitHub에서 자동 실행됩니다.</p>
   <pre class="cmd">npm install       # 준비물 설치
 npm run db:setup  # 초기 데이터 넣기
 npm start         # http://localhost:3000 에서 쇼핑몰 열기
-npm test          # 자동 검사 198개 전부 실행
+npm test          # 자동 검사 205개 전부 실행
 npm run report    # 검사 결과 보고서 열기</pre>
 </section>
 

@@ -1,4 +1,4 @@
-import { defineConfig } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test';
 
 const PORT = 3100;
 const BASE_URL = `http://localhost:${PORT}`;
@@ -35,6 +35,12 @@ export default defineConfig({
     {
       name: 'api',
       testDir: './tests/api',
+    },
+    {
+      // 실제 브라우저로 사용자 여정을 확인한다. 화면이 없는 API 테스트와 분리해서 따로 돌릴 수 있다.
+      name: 'e2e',
+      testDir: './tests/e2e',
+      use: { ...devices['Desktop Chrome'] },
     },
   ],
 });

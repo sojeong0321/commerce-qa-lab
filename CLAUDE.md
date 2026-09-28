@@ -29,7 +29,7 @@ Manual SW QA 경력자가 **QA Automation Engineer로 전환하기 위한 GitHub
 
 ## Phase 진행 순서
 
-0 설계 ✅ · 1 App 뼈대+DB ✅ · 2 Product/Cart ✅ · 3 Coupon ✅ · 4 Order/Cancel/Stock ✅ · 5 API 자동화 ✅ · **6 Playwright E2E** · 7 GitHub Actions CI · 8 Failure Evidence/Reporting · 9 Documentation · 10 Final Regression
+0 설계 ✅ · 1 App 뼈대+DB ✅ · 2 Product/Cart ✅ · 3 Coupon ✅ · 4 Order/Cancel/Stock ✅ · 5 API 자동화 ✅ · 6 Playwright E2E ✅ · **7 GitHub Actions CI** · 8 Failure Evidence/Reporting · 9 Documentation · 10 Final Regression
 
 한 번에 여러 Phase를 진행하지 않는다. 한 Phase를 끝내고 사용자 확인을 받는다.
 
@@ -100,6 +100,7 @@ npm start          # 개발 서버 http://localhost:3000
 npm run start:test # 테스트 서버 http://localhost:3100 (NODE_ENV=test, 기동 시 reset)
 npm run test:unit  # 단위/서비스/HTTP 테스트 (node:test)
 npm run test:api   # Playwright API 테스트 (webServer가 앱을 자동 기동)
+npm run test:e2e   # Playwright E2E 테스트 (실제 브라우저)
 npm test           # 위 둘 다
 npm run report     # Playwright HTML 리포트 열기
 ```
@@ -114,9 +115,10 @@ npm run report     # Playwright HTML 리포트 열기
 
 ## 현재 상태 (Phase를 끝낼 때마다 갱신할 것)
 
-- 완료: Phase 0~5. 테스트 **198개** 통과 (`tests/unit/` 125: 순수 38 + DB 통합 57 + HTTP 30 / `tests/api/` Playwright 73).
+- 완료: Phase 0~6. 테스트 **205개** 통과 (`tests/unit/` 125 / `tests/api/` 73 / `tests/e2e/` 7).
 - 동작: 화면 4개(상품, 장바구니, 주문 완료, 주문 내역), API 14개 + 테스트 전용 `POST /api/test/reset`.
 - 중간 점검에서 서버 5건·화면 6건 수정, 검사 48개 추가. 상세: `docs/phase-4-5-review-guide.html`
 - 응답 추가 사항: `GET /api/cart`와 checkout preview는 `purchasable`/`orderable`/`unavailableItems`를 포함한다. 주문에는 `coupon_code` snapshot이 저장된다.
 - Phase 5 산출물: `playwright.config.ts`(workers 1, retries 0, trace retain-on-failure, webServer), `tests/api/*.spec.ts`, `tests/support/`(api helper, seed 상수, reset fixture), README.md.
-- 다음: **Phase 6 — Playwright E2E** (핵심 사용자 여정 5개. scratchpad의 임시 확인 스크립트를 정식 E2E로 옮기고, config에 e2e project를 추가한다)
+- Phase 6 산출물: `tests/e2e/e2e-00{1..5}-*.spec.ts`, `tests/pages/`(ProductList/Cart/OrderComplete/Orders Page Object), config의 e2e project.
+- 다음: **Phase 7 — GitHub Actions CI** (PR/main push에서 Install → App Setup → Unit → API → E2E → Report 순차 실행, 실패 시 artifact 업로드)

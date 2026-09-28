@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 6 · E2E 자동 검사</title>
+<link rel="stylesheet" href="guide.css">
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="crumbs">
+    <a href="index.html">진행 현황</a><span>·</span>
+    <a href="phase-5-api-automation-guide.html">Phase 5</a><span>·</span>
+    <span>Phase 6</span>
+  </div>
+  <span class="label">Phase 6 · 완료</span>
+  <h1>로봇이 진짜 브라우저를 열고 쇼핑한다</h1>
+  <p class="lead">이제 검사 로봇이 크롬 창을 열어 손님처럼 상품을 클릭하고, 쿠폰을 입력하고, 주문하고, 취소합니다. 사람이 화면을 보지 않아도 됩니다.</p>
+  <div class="oneline">
+    한 줄 요약: <strong>핵심 쇼핑 여정 5가지</strong>를 실제 브라우저로 검사합니다. 전부 <strong>5초</strong>면 끝납니다.
+  </div>
+</header>
+
+<section>
+  <span class="label">무엇을 검사하나</span>
+  <h2>손님이 실제로 하는 일 5가지</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>번호</th><th>여정</th><th>확인하는 것</th></tr></thead>
+      <tbody>
+        <tr><td>E2E-001</td><td>상품 선택 → 장바구니 → 주문 → 완료</td><td>주문번호와 결제금액 표시, 장바구니 비워짐, 재고 표시 감소</td></tr>
+        <tr><td>E2E-002</td><td>쿠폰 적용 → 할인 확인 → 주문</td><td>할인 −5,000원, 최종 30,000원, 쿠폰이 사용 완료로 바뀌고 재사용 거절</td></tr>
+        <tr><td>E2E-003</td><td>주문 → 재고 감소 → 취소 → 재고 원복</td><td>재고 3→2→3, 상태 "취소됨", 쿠폰 복구, 취소 버튼 사라짐</td></tr>
+        <tr><td>E2E-004</td><td>재고보다 많은 수량 주문</td><td>담기 거절, 다른 손님이 먼저 사 간 경우 주문 거절, 주문 생기지 않음</td></tr>
+        <tr><td>E2E-005</td><td>최소 주문금액 미충족</td><td>쿠폰 적용 불가 + 이유, 경계값 30,000원에서 적용, 줄이면 자동 해제</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="callout"><b>왜 5가지뿐인가?</b> 재고를 0개로 바꿔 보거나 수량에 "abc"를 넣어 보는 식의 경우의 수는 이미 <a href="phase-5-api-automation-guide.html">API 검사 73개</a>가 맡고 있습니다. 브라우저 검사는 느리기 때문에 <mark>"손님이 화면에서 목표를 끝까지 달성할 수 있는가"</mark>만 확인합니다. 이게 테스트 피라미드의 핵심입니다.</p>
+</section>
+
+<section>
+  <span class="label">검사 방식</span>
+  <h2>화면의 값만 믿지 않는다</h2>
+  <p>브라우저 검사는 "화면에 30,000원이라고 써 있다"에서 멈추기 쉽습니다. 그런데 화면 글자는 맞는데 실제 데이터가 틀릴 수 있습니다. 그래서 각 여정에서 <b>화면 표시와 서버 상태를 둘 다</b> 확인합니다.</p>
+  <div class="rules">
+    <div class="rule"><span class="who">화면</span><h3>손님이 보는 것</h3><p>주문번호, 금액, 재고 표시, 상태 배지, 안내 문구</p></div>
+    <div class="rule"><span class="who">서버</span><h3>실제로 일어난 일</h3><p>재고가 정말 줄었는지, 쿠폰이 사용 처리됐는지, 장바구니가 비워졌는지, 주문이 생기지 않았는지</p></div>
+  </div>
+  <p class="muted small">E2E-004에서는 "장바구니를 열어 둔 사이 다른 손님이 먼저 사 가는" 상황을 만들어야 하는데, 브라우저 두 개를 띄우는 대신 <b>API로 사전 조건을 만들고 확인만 화면으로</b> 합니다. 준비는 빠르게, 검증은 사용자 관점으로.</p>
+</section>
+
+<section>
+  <span class="label">흔들리지 않게</span>
+  <h2>"3초 기다리기"를 쓰지 않았습니다</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>원칙</th><th>이 프로젝트에서</th></tr></thead>
+      <tbody>
+        <tr><td>고정 대기 금지</td><td>"3초 기다린다" 대신 <b>"결제금액이 30,000원이 될 때까지"</b> 같은 조건으로 기다립니다. 코드 전체에 고정 대기가 0건입니다</td></tr>
+        <tr><td>이름으로 찾기</td><td>화면 구조(태그, 클래스) 대신 <b>사람이 읽는 이름</b>으로 찾습니다. "장바구니 담기" 버튼, "머그컵 수량" 입력칸처럼</td></tr>
+        <tr><td>범위 좁히기</td><td>목록 안 요소는 <b>카드나 행으로 범위를 좁힌 뒤</b> 찾습니다. 같은 이름이 여러 개여도 헷갈리지 않습니다</td></tr>
+        <tr><td>재시도 금지</td><td>가끔 실패하는 검사를 다시 돌려 통과시키지 않습니다. 원인을 찾아 고칩니다</td></tr>
+        <tr><td>화면 찾는 법 분리</td><td>"무엇을 어떻게 찾는가"는 화면별 파일에 모았습니다. 화면이 바뀌어도 검사 본문은 그대로입니다</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="counts">
+    <div><b>3회</b><span>연속 실행 통과</span></div>
+    <div><b>5/5</b><span>파일 단독 실행 통과</span></div>
+    <div><b>0</b><span>고정 대기 · XPath 사용</span></div>
+  </div>
+</section>
+
+<section>
+  <span class="label">검사를 믿을 수 있나</span>
+  <h2>6가지 버그를 넣어 전부 잡히는지 확인했습니다</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>일부러 넣은 버그</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>취소해도 재고를 복구하지 않음</td><td class="no">E2E-003 실패로 잡힘</td></tr>
+        <tr><td>주문해도 쿠폰을 사용 처리하지 않음</td><td class="no">2개 실패</td></tr>
+        <tr><td>쿠폰 할인을 적용하지 않음</td><td class="no">3개 실패</td></tr>
+        <tr><td>재고보다 많이 담기 허용</td><td class="no">2개 실패</td></tr>
+        <tr><td>주문 후 장바구니를 비우지 않음</td><td class="no">2개 실패</td></tr>
+        <tr><td>재고를 항상 99개로 잘못 표시</td><td class="no">4개 실패</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <span class="label">실패하면</span>
+  <h2>이런 증거가 남습니다</h2>
+  <p>아래는 "취소해도 재고를 복구하지 않는" 버그를 일부러 넣고 검사를 돌렸을 때 실제로 생성된 보고서 화면입니다.</p>
+  <figure class="shot">
+    <img src="images/phase6-report-detail.png" alt="Playwright 리포트의 실패 상세 화면. 기대값과 실제값, 단계별 진행, 실패 시점 스크린샷, 트레이스 첨부가 보인다.">
+    <figcaption>보고서 하나에 <b>무엇을 기대했고 실제로 무엇이었는지</b>(재고 3개 기대 / 2개 실제), 어느 단계에서 멈췄는지, 그 순간의 화면 사진, 되감아 볼 수 있는 트레이스가 모두 들어 있습니다.</figcaption>
+  </figure>
+  <div class="ev">
+    <div class="evi"><span class="like">사진</span><h3>실패 순간 스크린샷</h3><p>손님이 무엇을 보고 있었는지 그대로 남습니다.</p></div>
+    <div class="evi"><span class="like">블랙박스</span><h3>트레이스</h3><p>클릭 하나하나, 화면 변화, 주고받은 데이터를 되감아 볼 수 있습니다.</p></div>
+    <div class="evi"><span class="like">성적표</span><h3>HTML 보고서</h3><p><code>npm run report</code>로 브라우저에서 엽니다.</p></div>
+  </div>
+</section>
+
+<section>
+  <span class="label">지금 상태</span>
+  <h2>자동 검사 205개</h2>
+  <div class="counts">
+    <div><b>125</b><span>부품·서버 검사</span></div>
+    <div><b>73</b><span>API 검사</span></div>
+    <div><b>7</b><span>브라우저 검사 (여정 5가지)</span></div>
+  </div>
+  <pre class="cmd">npm test          # 205개 전부 실행
+npm run test:e2e  # 브라우저 검사만
+npm run report    # 결과 보고서 열기</pre>
+  <p class="muted small">브라우저 검사 7개는 여정 5가지를 담고 있습니다(E2E-004가 상황별로 3개로 나뉩니다). 검사가 실행될 때 브라우저 창은 뜨지 않습니다. 화면 없이 도는 모드라 빠릅니다.</p>
+</section>
+
+<footer>
+  다음은 <b>Phase 7 · 자동 실행(CI)</b>입니다. 코드를 GitHub에 올릴 때마다 이 205개가 자동으로 실행되게 만듭니다. 전체 진행 상황은 <a href="index.html">진행 현황</a>에서 볼 수 있습니다.
+</footer>
+
+</div>
+</body>
+</html>
