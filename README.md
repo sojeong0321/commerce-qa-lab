@@ -3,7 +3,7 @@
 > 테스트하기 위해 직접 만든 작은 커머스 서비스, 그리고 그 서비스를 검증하는 자동화 테스트.
 > Manual QA에서 QA Automation으로 전환하며 만든 포트폴리오입니다.
 
-**현재 상태:** Phase 7까지 완료 · 자동 테스트 **205개** 통과 (Unit 125 + API 73 + E2E 7) · GitHub Actions CI 동작
+**현재 상태:** Phase 9까지 완료 · 자동 테스트 **205개** 통과 (Unit 125 + API 73 + E2E 7) · GitHub Actions CI 동작
 이 문서는 **지금 실제로 동작하는 것만** 적습니다.
 
 ---
@@ -112,10 +112,13 @@ app/
   db/            schema.sql, 결정적 seed 데이터, 초기화
   public/        상품 / 장바구니 / 주문 완료 / 주문 내역 화면
 tests/
-  unit/          순수 함수 · 서비스+DB · HTTP 스모크
+  unit/          순수 함수 · 서비스+DB · HTTP 계약
   api/           Playwright API 테스트 (테스트 ID로 설계 문서와 연결)
+  e2e/           사용자 여정 5개
+  pages/         Page Object (화면별 locator)
   support/       공통 요청 helper, seed 상수, 초기화 fixture
-docs/            단계별 기록 (HTML)
+docs/            단계별 기록(HTML) + 상세 문서(Markdown)
+.github/workflows/ci.yml
 playwright.config.ts
 ```
 
@@ -154,8 +157,8 @@ playwright.config.ts
 | 5 | API 자동화 (Playwright 73개) | 완료 |
 | 6 | E2E 자동화 (핵심 여정 5개) | 완료 |
 | 7 | GitHub Actions CI | 완료 |
-| 8 | 실패 증거 / 리포팅 | 예정 |
-| 9 | 문서 정리 | 예정 |
+| 8 | 실패 증거 / 리포팅 | 완료 |
+| 9 | 문서 정리 | 완료 |
 | 10 | 최종 회귀 / 코드 리뷰 | 예정 |
 
 ---
@@ -171,4 +174,13 @@ HTML 파일이라 GitHub에서는 소스로 보입니다. 저장소를 내려받
 - `docs/phase-4-5-review-guide.html` — **중간 점검**: 테스트가 버그를 못 잡고 있던 문제와 보강
 - `docs/phase-5-api-automation-guide.html` — API 자동화
 - `docs/phase-6-e2e-guide.html` — E2E 자동화
-- `docs/phase-7-ci-guide.html` — GitHub Actions CI
+- `docs/phase-7-ci-guide.html` — GitHub Actions CI (성공·실패 양쪽 검증)
+- `docs/phase-8-evidence-guide.html` — 실패 증거
+- `docs/phase-9-documentation-guide.html` — 문서 정리
+
+### 상세 문서 (Markdown)
+
+- [docs/test-strategy.md](docs/test-strategy.md) — 테스트 전략: 레이어 배분 근거, 데이터·실행 정책, 변이 테스트
+- [docs/test-cases.md](docs/test-cases.md) — 비즈니스 규칙 ↔ 테스트 추적 매트릭스와 전체 케이스
+- [docs/architecture.md](docs/architecture.md) — 구조, 스키마 설계 원칙, 트랜잭션 경계, 기술 선택 근거
+- [docs/defect-examples.md](docs/defect-examples.md) — 실제 발견 결함 6건, 주입 결함 23종, CI 실패 검증
