@@ -12,10 +12,11 @@
     "start:test": "NODE_ENV=test DB_PATH=data/test.db PORT=3100 node app/server.js",
     "db:setup": "node app/db/setup.js",
     "test:unit": "node --test \"tests/unit/**/*.test.js\"",
-    "test:api": "playwright test --project=api",
+    "test:api": "PLAYWRIGHT_HTML_OUTPUT_DIR=playwright-report/api playwright test --project=api",
     "test": "npm run test:unit && npm run test:api && npm run test:e2e",
-    "report": "playwright show-report",
-    "test:e2e": "playwright test --project=e2e"
+    "test:e2e": "PLAYWRIGHT_HTML_OUTPUT_DIR=playwright-report/e2e playwright test --project=e2e",
+    "report:api": "playwright show-report playwright-report/api",
+    "report:e2e": "playwright show-report playwright-report/e2e"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",

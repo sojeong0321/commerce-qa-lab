@@ -1,0 +1,62 @@
+name: CI
+
+# Pull Request와 main 브랜치 push에서 자동 실행한다.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Unit → API → E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: 코드 내려받기
+        uses: actions/checkout@v4
+
+      - name: Node.js 준비
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: 준비물 설치
+        run: npm ci
+
+      - name: 브라우저 설치
+        run: npx playwright install --with-deps chromium
+
+      # 테스트가 서버를 직접 띄우지만, 스키마와 seed가 정상인지 먼저 확인한다.
+      - name: 애플리케이션 준비 확인
+        run: npm run db:setup
+
+      # 아래 세 단계는 순서대로 실행되고, 하나라도 실패하면 이후 단계는 건너뛰며 workflow가 실패한다.
+      - name: Unit 테스트
+        run: npm run test:unit
+
+      - name: API 테스트
+        run: npm run test:api
+
+      - name: E2E 테스트
+        run: npm run test:e2e
+
+      # 성공/실패와 무관하게 리포트를 남긴다. 실패했을 때 확인할 수 있어야 하기 때문이다.
+      - name: Playwright 리포트 업로드
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
+
+      # 실패했을 때만 생성되는 증거(스크린샷, 트레이스)를 업로드한다.
+      - name: 실패 증거 업로드 (스크린샷 · 트레이스)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-evidence
+          path: test-results/
+          retention-days: 14

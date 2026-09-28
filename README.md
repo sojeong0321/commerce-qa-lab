@@ -3,8 +3,8 @@
 > 테스트하기 위해 직접 만든 작은 커머스 서비스, 그리고 그 서비스를 검증하는 자동화 테스트.
 > Manual QA에서 QA Automation으로 전환하며 만든 포트폴리오입니다.
 
-**현재 상태:** Phase 5까지 완료 · 자동 테스트 **198개** 통과 (Unit 125 + API 73)
-Playwright E2E(Phase 6)와 GitHub Actions CI(Phase 7)는 아직 없습니다. 이 문서는 **지금 실제로 동작하는 것만** 적습니다.
+**현재 상태:** Phase 7까지 완료 · 자동 테스트 **205개** 통과 (Unit 125 + API 73 + E2E 7) · GitHub Actions CI 동작
+이 문서는 **지금 실제로 동작하는 것만** 적습니다.
 
 ---
 
@@ -25,10 +25,11 @@ npm install         # 준비물 설치 (Node 22 이상)
 npm run db:setup    # 데이터베이스 생성 + 초기 데이터
 npm start           # http://localhost:3000 에서 쇼핑몰 열기
 
-npm test            # 전체 테스트 (Unit 125 + API 73)
+npm test            # 전체 테스트 (Unit 125 + API 73 + E2E 7)
 npm run test:unit   # 단위/서비스 테스트만
 npm run test:api    # API 테스트만 (서버는 테스트가 알아서 띄웁니다)
-npm run report      # 테스트 HTML 리포트 열기
+npm run test:e2e    # 실제 브라우저 E2E 테스트만
+npm run report:e2e  # E2E HTML 리포트 열기 (report:api 도 있습니다)
 ```
 
 테스트는 **실제 서버와 실제 데이터베이스**를 상대합니다. 가짜 응답(mock)으로 통과시키는 테스트는 없습니다.
@@ -38,7 +39,7 @@ npm run report      # 테스트 HTML 리포트 열기
 ## 테스트 전략
 
 ```
-        ▲  E2E (Phase 6 예정)   실제 브라우저로 핵심 사용자 여정만
+        ▲  E2E 7개 (여정 5)     실제 브라우저로 핵심 사용자 여정만
       ▲▲▲  API 73개             비즈니스 규칙과 엣지 케이스
     ▲▲▲▲▲  Unit/서비스 125개    금액 계산, 입력 검증, 상태 전이
 ```
@@ -49,8 +50,11 @@ npm run report      # 테스트 HTML 리포트 열기
 | 서비스 + DB | 57 | `node:test` + in-memory SQLite | 재고·쿠폰·주문 상태 전이, 트랜잭션 롤백 |
 | HTTP 스모크 | 30 | `node:test` | 인증 401, 에러 코드 전달, 응답 형식 |
 | API | 73 | Playwright | 실제 서버 대상 비즈니스 규칙 + 상태 부작용 검증 |
+| E2E | 7 | Playwright (Chromium) | 실제 브라우저로 5개 사용자 여정. 화면 표시와 서버 상태를 함께 확인 |
 
-**API와 E2E를 나눈 이유:** 브라우저로 모든 경우를 검증하면 느리고, 화면 변화에 취약해 자주 깨집니다. 규칙과 엣지 케이스는 빠른 API 테스트가 맡고, E2E는 "사용자가 화면에서 목표를 달성할 수 있는가"만 검증합니다(Phase 6에서 5개 여정).
+**API와 E2E를 나눈 이유:** 브라우저로 모든 경우를 검증하면 느리고, 화면 변화에 취약해 자주 깨집니다. 규칙과 엣지 케이스는 빠른 API 테스트가 맡고, E2E는 "사용자가 화면에서 목표를 달성할 수 있는가"만 검증합니다.
+
+**E2E 5개 여정:** 주문 완주(E2E-001) · 쿠폰 적용 주문(E2E-002) · 취소 후 재고 원복(E2E-003) · 재고 초과 주문 거절(E2E-004) · 최소 주문금액 미충족(E2E-005)
 
 ### 이 프로젝트에서 신경 쓴 것
 
@@ -67,11 +71,24 @@ npm run report      # 테스트 HTML 리포트 열기
 
 API 테스트가 실패하면 자동으로 다음이 생성됩니다.
 
-- `playwright-report/` — 어떤 테스트가 어디서 실패했는지 보여 주는 HTML 리포트 (`npm run report`)
+- `playwright-report/api`, `playwright-report/e2e` — HTML 리포트 (`npm run report:api` / `report:e2e`)
+- `test-results/**/test-failed-1.png` — E2E 실패 시점 스크린샷
 - `test-results/**/trace.zip` — 요청과 응답이 기록된 트레이스 (`npx playwright show-trace <경로>`)
 - `test-results/**/error-context.md` — 실패 시점 요약
 
-실제로 코드를 일부러 망가뜨려 이 증거들이 생성되는 것을 확인했습니다. Phase 7~8에서 CI 아티팩트로 업로드됩니다.
+실제로 코드를 일부러 망가뜨려 이 증거들이 생성되는 것을 확인했습니다. CI에서도 아티팩트로 업로드됩니다.
+
+## CI
+
+`.github/workflows/ci.yml` — Pull Request와 main push에서 자동 실행됩니다.
+
+```
+checkout → Node 22 → npm ci → 브라우저 설치 → DB 준비 확인
+  → Unit(125) → API(73) → E2E(7) → 리포트/실패 증거 업로드
+```
+
+- 순차 실행(fail-fast): 앞 단계가 실패하면 뒤 단계를 돌리지 않고 workflow가 실패합니다.
+- 리포트는 성공·실패와 무관하게 업로드하고, 스크린샷·트레이스는 실패했을 때만 업로드합니다.
 
 ---
 
@@ -135,8 +152,8 @@ playwright.config.ts
 | 4 | 주문 / 취소 / 재고 | 완료 |
 | — | 중간 점검: 변이 테스트로 커버리지 구멍 발견 → 앱 11건 수정, 테스트 48개 추가 | 완료 |
 | 5 | API 자동화 (Playwright 73개) | 완료 |
-| 6 | E2E 자동화 (핵심 여정 5개) | 예정 |
-| 7 | GitHub Actions CI | 예정 |
+| 6 | E2E 자동화 (핵심 여정 5개) | 완료 |
+| 7 | GitHub Actions CI | 완료 |
 | 8 | 실패 증거 / 리포팅 | 예정 |
 | 9 | 문서 정리 | 예정 |
 | 10 | 최종 회귀 / 코드 리뷰 | 예정 |
@@ -153,3 +170,5 @@ HTML 파일이라 GitHub에서는 소스로 보입니다. 저장소를 내려받
 - `docs/phase-1-skeleton-guide.html` ~ `phase-4-order-cancel-guide.html` — 기능 구현과 검증
 - `docs/phase-4-5-review-guide.html` — **중간 점검**: 테스트가 버그를 못 잡고 있던 문제와 보강
 - `docs/phase-5-api-automation-guide.html` — API 자동화
+- `docs/phase-6-e2e-guide.html` — E2E 자동화
+- `docs/phase-7-ci-guide.html` — GitHub Actions CI
