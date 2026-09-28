@@ -106,9 +106,8 @@ function createOrderService(db, { productService, cartService, couponService }) 
       throw new AppError(409, 'ORDER_ALREADY_CANCELED', `이미 취소된 주문입니다. (id: ${orderId})`);
     }
 
-    for (const item of selectOrderItems.all(orderId)) {
-      increaseStock.run(item.quantity, item.product_id);
-    }
+    // [의도적 결함 - DEMO] 취소 시 재고를 복구하지 않는다.
+    // CI가 이 결함을 잡아내고 증거를 남기는지 확인하기 위한 브랜치. main에 병합하지 않는다.
     if (order.user_coupon_id) {
       restoreCoupon.run(order.user_coupon_id); // BR-CP6: 취소하면 쿠폰을 다시 쓸 수 있다.
     }
