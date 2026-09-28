@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 8 · 실패 증거</title>
+<link rel="stylesheet" href="guide.css">
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="crumbs">
+    <a href="index.html">진행 현황</a><span>·</span>
+    <a href="phase-7-ci-guide.html">Phase 7</a><span>·</span>
+    <span>Phase 8</span>
+  </div>
+  <span class="label">Phase 8 · 완료</span>
+  <h1>"안 돼요" 대신 증거를 남긴다</h1>
+  <p class="lead">수동 QA에서 버그 리포트에 화면 캡처를 붙이던 것과 같습니다. 검사가 실패하면 무엇을 기대했고 실제로 무엇이었는지, 그 순간 화면은 어땠는지가 자동으로 남습니다.</p>
+  <div class="oneline">
+    한 줄 요약: 실패하면 <strong>사진 · 블랙박스 기록 · 보고서</strong>가 남고, GitHub에서 <strong>파일로 내려받아</strong> 확인할 수 있습니다.
+  </div>
+</header>
+
+<section>
+  <span class="label">실제 증거</span>
+  <h2>일부러 결함을 넣고 받아 본 자료</h2>
+  <p>"주문을 취소해도 재고를 복구하지 않는" 결함을 넣은 Pull Request를 올려, GitHub에서 아래 자료를 실제로 내려받았습니다.</p>
+  <figure class="shot">
+    <img src="images/phase8-e2e-failure-screenshot.png" alt="실패 순간 자동 저장된 화면. 취소 후에도 러닝화 재고가 2개로 남아 있다.">
+    <figcaption>검사가 실패한 순간 자동으로 찍힌 화면입니다. 주문을 취소했는데 <b>러닝화 재고가 3개로 돌아오지 않고 2개로 남아 있는 것</b>이 사진에 그대로 보입니다. 사람이 캡처 버튼을 누른 적이 없습니다.</figcaption>
+  </figure>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>파일</th><th>무엇인가</th><th>언제 쓰나</th></tr></thead>
+      <tbody>
+        <tr><td>test-failed-1.png</td><td>실패 순간 화면 사진</td><td>"손님이 무엇을 보고 있었나" 한눈에 확인</td></tr>
+        <tr><td>trace.zip</td><td>블랙박스 기록</td><td>클릭·화면 변화·주고받은 데이터를 되감아 보며 원인 추적</td></tr>
+        <tr><td>error-context.md</td><td>실패 요약</td><td>기대값·실제값·실패 위치를 글로 정리</td></tr>
+        <tr><td>playwright-report/</td><td>HTML 성적표</td><td>전체 결과를 브라우저로 훑어보기</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="callout">실패 메시지 예시: <code>Expected: "재고 3개" / Received: "재고 2개"</code><br>
+  개발자에게 "취소가 안 돼요"라고 말하는 것과, 이 한 줄과 사진을 함께 주는 것은 완전히 다릅니다.</p>
+</section>
+
+<section>
+  <span class="label">설정</span>
+  <h2>언제 무엇을 남기도록 했나</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>설정</th><th>선택</th><th>이유</th></tr></thead>
+      <tbody>
+        <tr><td>스크린샷</td><td>실패했을 때만</td><td>성공한 검사까지 찍으면 용량만 커집니다</td></tr>
+        <tr><td>트레이스</td><td>실패했을 때만 보관</td><td>재시도를 하지 않기 때문에 "재시도 때만 기록" 옵션은 쓸 수 없습니다</td></tr>
+        <tr><td>재시도</td><td>하지 않음</td><td>가끔 실패하는 검사를 다시 돌려 통과시키면 문제를 덮게 됩니다</td></tr>
+        <tr><td>보고서 경로</td><td>API와 E2E 분리</td><td>같은 폴더에 쓰면 뒤에 돌린 결과가 앞 결과를 덮어씁니다</td></tr>
+        <tr><td>CI 보관</td><td>보고서는 항상, 증거는 실패 시 · 14일</td><td>확인에는 충분하고 저장 공간을 낭비하지 않습니다</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="muted small">"보고서 경로 분리"는 CI를 만들면서 발견한 문제였습니다. API 검사 결과 위에 E2E 결과가 덮여 쓰여서, 아티팩트에 E2E 결과만 남아 있었습니다.</p>
+</section>
+
+<section>
+  <span class="label">결함 기록</span>
+  <h2>지금까지 발견한 결함을 문서로 남겼습니다</h2>
+  <p><code>docs/defect-examples.md</code>에 실제 발견 결함 6건과, 테스트 검증을 위해 주입한 결함 전체를 기록했습니다. 각 항목은 실무 결함 리포트와 같은 요소를 갖추고 있습니다.</p>
+  <div class="rules">
+    <div class="rule"><h3>재현 절차</h3><p>누구나 같은 순서로 재현할 수 있게</p></div>
+    <div class="rule"><h3>기대 vs 실제</h3><p>무엇이 잘못인지 명확하게</p></div>
+    <div class="rule"><h3>증거</h3><p>스크린샷, 트레이스, 실패 메시지</p></div>
+    <div class="rule"><h3>원인</h3><p>추정이 아니라 확인한 원인</p></div>
+    <div class="rule"><h3>수정과 회귀 방지</h3><p>고친 내용과, 재발하면 잡아낼 검사</p></div>
+    <div class="rule policy"><h3>정직하게</h3><p>재현되지 않은 지적은 "재현되지 않음"으로 남겼습니다</p></div>
+  </div>
+</section>
+
+<section>
+  <span class="label">면접에서 설명할 것</span>
+  <h2>증거가 왜 중요한가</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>상황</th><th>증거가 없으면</th><th>증거가 있으면</th></tr></thead>
+      <tbody>
+        <tr><td>CI에서만 실패</td><td>"내 컴퓨터에서는 되는데요"에서 대화가 멈춤</td><td>그 순간의 화면과 데이터를 직접 확인</td></tr>
+        <tr><td>가끔 실패하는 검사</td><td>재시도로 덮고 원인을 모른 채 지나감</td><td>실패한 실행의 기록으로 타이밍 문제를 찾아냄</td></tr>
+        <tr><td>개발자에게 전달</td><td>말로 설명하며 재현 방법을 묻고 답함</td><td>파일 하나로 재현 절차와 상태를 전달</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  다음은 <b>Phase 9 · 문서 정리</b>입니다. 채용 담당자가 짧은 시간에 이해할 수 있도록 문서를 정리합니다. 전체 진행 상황은 <a href="index.html">진행 현황</a>에서 볼 수 있습니다.
+</footer>
+
+</div>
+</body>
+</html>

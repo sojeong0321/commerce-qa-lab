@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 7 · 자동 실행 CI</title>
+<link rel="stylesheet" href="guide.css">
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="crumbs">
+    <a href="index.html">진행 현황</a><span>·</span>
+    <a href="phase-6-e2e-guide.html">Phase 6</a><span>·</span>
+    <span>Phase 7</span>
+  </div>
+  <span class="label">Phase 7 · 완료</span>
+  <h1>코드를 올리면 GitHub가 알아서 검사한다</h1>
+  <p class="lead">이제 사람이 명령을 입력할 필요가 없습니다. 코드를 올릴 때마다 GitHub의 컴퓨터가 검사 205개를 전부 돌리고, 하나라도 실패하면 빨간불을 켭니다.</p>
+  <div class="oneline">
+    한 줄 요약: <strong>코드를 올릴 때마다 1분 안에</strong> 모든 검사가 자동 실행됩니다. 실제로 성공과 실패를 <strong>둘 다</strong> 확인했습니다.
+  </div>
+</header>
+
+<section>
+  <span class="label">언제 돌아가나</span>
+  <h2>두 가지 경우에 자동 실행</h2>
+  <div class="rules">
+    <div class="rule"><span class="who">Pull Request</span><h3>코드를 합치기 전 검사</h3><p>고친 코드를 본 줄기에 합치자고 제안할 때, 합치기 전에 먼저 검사합니다. 문제가 있으면 합칠 수 없습니다.</p></div>
+    <div class="rule"><span class="who">main 반영</span><h3>본 줄기에 올릴 때</h3><p>본 줄기 코드가 항상 검사를 통과한 상태로 유지됩니다.</p></div>
+  </div>
+</section>
+
+<section>
+  <span class="label">무슨 일을 하나</span>
+  <h2>실행 순서</h2>
+  <div class="journey">
+    <div class="step"><span class="n">1</span><b>코드 내려받기</b><span>GitHub의 빈 컴퓨터에 프로젝트를 복사</span></div>
+    <div class="step"><span class="n">2</span><b>준비물 설치</b><span>Node.js, 라이브러리, 크롬 브라우저</span></div>
+    <div class="step"><span class="n">3</span><b>가게 준비 확인</b><span>데이터베이스와 초기 데이터가 정상인지</span></div>
+    <div class="step"><span class="n">4</span><b>부품 검사 125개</b><span>가장 빠른 검사부터</span></div>
+    <div class="step"><span class="n">5</span><b>API 검사 73개</b></div>
+    <div class="step"><span class="n">6</span><b>브라우저 검사 7개</b></div>
+    <div class="step"><span class="n">7</span><b>결과 보관</b><span>보고서와 실패 증거를 파일로 올림</span></div>
+  </div>
+  <div class="lights">
+    <div class="light g"><b>전부 통과하면 초록불</b><span>실제 측정: 1분 2초. 새 코드가 기존 기능을 망가뜨리지 않았다는 뜻입니다.</span></div>
+    <div class="light r"><b>하나라도 실패하면 빨간불</b><span>어느 검사가 어디서 실패했는지 바로 보이고, 문제 있는 코드가 조용히 통과되지 않습니다.</span></div>
+  </div>
+</section>
+
+<section>
+  <span class="label">실제로 확인</span>
+  <h2>실패도 제대로 되는지 시험했습니다</h2>
+  <p>"통과한다"만 확인하면 반쪽입니다. 그래서 <b>일부러 결함을 넣은 가지(브랜치)</b>를 만들어 Pull Request를 올려 봤습니다. 넣은 결함은 "주문을 취소해도 재고를 복구하지 않음"입니다.</p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>확인 항목</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>CI가 결함을 잡았는가</td><td class="ok">부품 4건 · API 3건 · 브라우저 1건 실패</td></tr>
+        <tr><td>workflow가 실패로 표시되는가</td><td class="ok">빨간불</td></tr>
+        <tr><td>실패 증거가 남는가</td><td class="ok">스크린샷 · 트레이스 · 보고서 모두 업로드</td></tr>
+        <tr><td>결함 코드가 본 줄기로 들어갔는가</td><td class="ok">아니요. PR은 병합하지 않고 닫았습니다</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <span class="label">이 과정에서 고친 것</span>
+  <h2>첫 시도에서 증거가 하나도 남지 않았다</h2>
+  <div class="bug">
+    <span class="found">실패 시험에서 발견</span>
+    <h3>앞 단계가 실패하자 뒤 검사가 통째로 건너뛰어졌다</h3>
+    <p>처음 설정은 "앞 단계가 실패하면 즉시 중단"이었습니다. 그런데 부품 검사가 먼저 결함을 잡는 바람에 <b>API·브라우저 검사가 아예 실행되지 않았고</b>, 결과적으로 스크린샷도 트레이스도 하나도 남지 않았습니다. 정작 증거가 필요한 상황에서 증거가 없는 셈입니다.</p>
+    <p><b>고친 방법:</b> 앞 단계가 실패해도 세 층을 모두 실행하도록 바꿨습니다. workflow는 여전히 실패로 표시됩니다. 대신 <b>어느 층까지 영향을 받았는지 한 번에 보이고</b>, 브라우저 검사 증거도 남습니다.</p>
+    <p><b>판단 근거:</b> 검사 전체가 1분이라 시간 손해가 거의 없습니다. 검사가 수십 분씩 걸리는 프로젝트라면 반대로 즉시 중단이 맞을 수 있습니다. 상황에 따라 달라지는 선택이라는 점이 중요합니다.</p>
+  </div>
+</section>
+
+<section>
+  <span class="label">설계상 선택</span>
+  <h2>왜 이렇게 만들었나</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>선택</th><th>이유</th></tr></thead>
+      <tbody>
+        <tr><td>빠른 검사부터 순서대로</td><td>부품(초) → API(2초) → 브라우저(5초). 문제가 어느 층에서 잡히는지가 원인 파악의 첫 단서가 됩니다</td></tr>
+        <tr><td>검사가 서버를 직접 띄움</td><td>CI 설정에 서버 실행 단계를 따로 두지 않아도 되고, 내 컴퓨터와 GitHub가 똑같이 동작합니다</td></tr>
+        <tr><td>보고서는 항상 업로드</td><td>성공했을 때도 무엇이 실행됐는지 확인할 수 있어야 합니다</td></tr>
+        <tr><td>증거는 실패할 때만</td><td>매번 남기면 용량만 커집니다</td></tr>
+        <tr><td>14일 보관</td><td>문제를 확인하기엔 충분하고 저장 공간을 낭비하지 않습니다</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  다음은 <b>Phase 8 · 실패 증거와 보고서</b>입니다. 실패했을 때 남는 자료를 어떻게 읽고 활용하는지 정리합니다. 전체 진행 상황은 <a href="index.html">진행 현황</a>에서 볼 수 있습니다.
+</footer>
+
+</div>
+</body>
+</html>
