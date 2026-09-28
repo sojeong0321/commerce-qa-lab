@@ -2,7 +2,7 @@
   "name": "commerce-qa-lab",
   "version": "0.1.0",
   "private": true,
-  "description": "QA Automation portfolio: a small commerce app built to be tested — 205 automated tests (unit, API, Playwright E2E) running in GitHub Actions CI.",
+  "description": "QA Automation portfolio: a small commerce app built to be tested — 206 automated tests (unit, API, Playwright E2E) running in GitHub Actions CI.",
   "type": "commonjs",
   "engines": {
     "node": ">=22"
