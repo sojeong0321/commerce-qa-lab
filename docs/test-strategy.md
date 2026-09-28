@@ -13,16 +13,16 @@
 
 ```
         ▲  E2E 7            실제 브라우저 · 핵심 사용자 여정 5
-      ▲▲▲  API 73           실제 HTTP · 비즈니스 규칙과 엣지 케이스
+      ▲▲▲  API 74           실제 HTTP · 비즈니스 규칙과 엣지 케이스
     ▲▲▲▲▲  Unit/서비스 125  순수 계산 · DB 상태 전이 · HTTP 계약
 ```
 
 | 레이어 | 개수 | 실행 시간 | 도구 | 책임 |
 |---|---|---|---|---|
 | 순수 함수 | 38 | < 0.3s | `node:test` | 금액 계산, 경계값, 입력 검증 |
-| 서비스 + DB | 57 | < 0.3s | `node:test` + in-memory SQLite | 재고·쿠폰·주문 상태 전이, 트랜잭션 롤백 |
-| HTTP 계약 | 30 | < 0.5s | `node:test` + `app.listen(0)` | 인증 401, 상태 코드 매핑, 에러 응답 형식 |
-| API | 73 | ~4s | Playwright `request` | 실제 서버 대상 규칙 검증 + 상태 부작용 |
+| 서비스 + DB | 55 | < 0.3s | `node:test` + in-memory SQLite | 재고·쿠폰·주문 상태 전이, 트랜잭션 롤백 |
+| HTTP 계약 | 32 | < 0.5s | `node:test` + `app.listen(0)` | 인증 401, 상태 코드 매핑, 에러 응답 형식 |
+| API | 74 | ~4s | Playwright `request` | 실제 서버 대상 규칙 검증 + 상태 부작용 |
 | E2E | 7 | ~5s | Playwright (Chromium) | 사용자 여정 완주 가능 여부 |
 
 ### 레이어 배분 기준
@@ -85,6 +85,7 @@ E2E를 늘리지 않는 이유는 느려서만이 아닙니다. 화면 구조 �
 | `fullyParallel` | false | 동일 |
 | `retries` | 0 | 불안정한 테스트를 재시도로 은폐하지 않음 |
 | `trace` | `retain-on-failure` | 재시도가 없으므로 `on-first-retry`는 무의미 |
+| `outputDir` | 프로젝트별 분리 | 공유하면 뒤에 실행한 프로젝트가 앞 프로젝트의 실패 증거를 삭제 |
 | `screenshot` | `only-on-failure` | 용량 관리 |
 | `webServer` | `npm run start:test` | 테스트가 앱을 직접 기동. 로컬과 CI 동작이 동일 |
 
@@ -128,6 +129,7 @@ Page Object는 "무엇을 어떻게 찾는가"만 담고 비즈니스 판단은 
 | 중간 점검 | 9종 | 전부 미검출 → 테스트 48개 보강 후 전부 검출 |
 | Phase 5 (API) | 8종 | 전부 검출 |
 | Phase 6 (E2E) | 6종 | 전부 검출 |
+| Phase 10 (최종) | 3종 | 전부 검출 |
 
 **주입 시 주의:** 원복은 `git checkout --`이 아니라 **작업 전 파일 복사본**으로 합니다. git으로 되돌리면 아직 커밋하지 않은 작업까지 사라집니다(실제로 한 번 사고가 있었고, 그 기록을 [중간 점검 가이드](phase-4-5-review-guide.html)에 남겼습니다).
 
@@ -135,7 +137,7 @@ Page Object는 "무엇을 어떻게 찾는가"만 담고 비즈니스 판단은 
 
 ```
 checkout → Node 22 → npm ci → chromium 설치 → DB 준비 확인
-  → Unit(125) → API(73) → E2E(7) → 리포트/증거 업로드
+  → Unit(125) → API(74) → E2E(7) → 리포트/증거 업로드
 ```
 
 - 트리거: Pull Request, main push

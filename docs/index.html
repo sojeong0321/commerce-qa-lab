@@ -13,7 +13,7 @@
   <span class="label">진행 현황</span>
   <h1>commerce-qa-lab 단계별 가이드</h1>
   <p class="lead">작은 온라인 쇼핑몰을 직접 만들고, 그 쇼핑몰을 검사 로봇이 자동으로 확인하게 만드는 프로젝트입니다. 각 단계마다 무엇을 만들었고 어떻게 확인했는지 코딩을 몰라도 읽을 수 있게 정리했습니다.</p>
-  <div class="oneline">현재 <strong>Phase 9까지 완료</strong>. 자동 검사 <strong>205개</strong>가 통과하고, 코드를 올릴 때마다 GitHub가 <strong>1분 안에</strong> 전부 다시 검사합니다.</div>
+  <div class="oneline"><strong>전체 완료.</strong> 자동 검사 <strong>206개</strong>가 통과하고, 코드를 올릴 때마다 GitHub가 <strong>1분 안에</strong> 전부 다시 검사합니다.</div>
 </header>
 
 <section>
@@ -30,8 +30,8 @@
     <li><span class="no-">6</span><div><div class="t"><a href="phase-6-e2e-guide.html">E2E 자동 검사</a></div><div class="d">실제 브라우저로 손님 여정 5가지 · 완료 (5초)</div></div></li>
     <li><span class="no-">7</span><div><div class="t"><a href="phase-7-ci-guide.html">자동 실행 (CI)</a></div><div class="d">PR과 main push에서 자동 실행 · 완료 (성공 1분 2초, 실패 검출도 확인)</div></div></li>
     <li><span class="no-">8</span><div><div class="t"><a href="phase-8-evidence-guide.html">실패 증거 · 보고서</a></div><div class="d">스크린샷·트레이스·리포트를 GitHub에서 내려받아 확인 · 완료</div></div></li>
-    <li class="now"><span class="no-">9</span><div><div class="t"><a href="phase-9-documentation-guide.html">문서 정리</a></div><div class="d">README와 전략·케이스·구조·결함 사례 문서 · 완료</div></div></li>
-    <li><span class="no-">10</span><div><div class="t">최종 점검</div><div class="d">전체 검사 재실행, 설계와 실제 결과 비교</div></div></li>
+    <li><span class="no-">9</span><div><div class="t"><a href="phase-9-documentation-guide.html">문서 정리</a></div><div class="d">README와 전략·케이스·구조·결함 사례 문서 · 완료</div></div></li>
+    <li class="now"><span class="no-">10</span><div><div class="t"><a href="phase-10-final-review-guide.html">최종 점검</a></div><div class="d">전체 재검증, 최종 리뷰에서 15건 수정 · 완료</div></div></li>
   </ol>
 </section>
 
@@ -39,16 +39,16 @@
   <span class="label">지금 상태</span>
   <h2>현재 동작하는 것</h2>
   <div class="counts">
-    <div><b>205</b><span>자동 검사 (모두 통과)</span></div>
+    <div><b>206</b><span>자동 검사 (모두 통과)</span></div>
     <div><b>4</b><span>화면 (상품, 장바구니, 주문 완료, 주문 내역)</span></div>
     <div><b>14</b><span>동작하는 API (+ 테스트 전용 1개)</span></div>
   </div>
-  <p class="muted small">검사 205개의 구성: 순수 계산 38개, 데이터베이스까지 함께 확인 57개, 서버를 띄워 확인 30개, Playwright API 검사 73개, 실제 브라우저 검사 7개입니다. 코드를 GitHub에 올리면 전부 자동 실행됩니다.</p>
+  <p class="muted small">검사 206개의 구성: 순수 계산 38개, 데이터베이스까지 함께 확인 55개, 서버를 띄워 확인 32개, Playwright API 검사 74개, 실제 브라우저 검사 7개입니다. 코드를 GitHub에 올리면 전부 자동 실행됩니다.</p>
   <pre class="cmd">npm install       # 준비물 설치
 npm run db:setup  # 초기 데이터 넣기
 npm start         # http://localhost:3000 에서 쇼핑몰 열기
-npm test          # 자동 검사 205개 전부 실행
-npm run report    # 검사 결과 보고서 열기</pre>
+npm test          # 자동 검사 206개 전부 실행
+npm run report:e2e # 검사 결과 보고서 열기</pre>
 </section>
 
 <section>

@@ -29,11 +29,11 @@
   <p>이전까지 "36개 요청을 확인했다"는 말은 제 작업 기록일 뿐, 다른 사람이 재현할 수 없었습니다. 이제는 저장소를 받은 누구나 같은 명령으로 같은 결과를 볼 수 있습니다.</p>
   <pre class="cmd">npm install       # 준비물 설치
 npm test          # 부품 검사 125개 + API 검사 73개 전부 실행
-npm run report    # 결과 보고서를 브라우저로 열기</pre>
+npm run report:api # 결과 보고서를 브라우저로 열기</pre>
   <div class="counts">
     <div><b>73</b><span>API 자동 검사</span></div>
     <div><b>4초</b><span>전체 실행 시간</span></div>
-    <div><b>198</b><span>지금까지 만든 자동 검사 합계</span></div>
+    <div><b>198</b><span>당시 자동 검사 합계</span></div>
   </div>
 </section>
 
@@ -124,7 +124,7 @@ npm run report    # 결과 보고서를 브라우저로 열기</pre>
   <p>일부러 버그를 넣고 실패시켜, 증거가 실제로 남는지 확인했습니다.</p>
   <div class="ev">
     <div class="evi"><span class="like">블랙박스</span><h3>트레이스</h3><p>실패한 검사마다 요청과 응답이 기록된 파일이 남습니다. 나중에 열어 보면 어떤 요청에 무엇이 돌아왔는지 그대로 보입니다.</p></div>
-    <div class="evi"><span class="like">성적표</span><h3>HTML 보고서</h3><p><code>npm run report</code>로 열면 어떤 검사가 실패했고 어디서 멈췄는지 보입니다.</p></div>
+    <div class="evi"><span class="like">성적표</span><h3>HTML 보고서</h3><p><code>npm run report:api</code>로 열면 어떤 검사가 실패했고 어디서 멈췄는지 보입니다.</p></div>
     <div class="evi"><span class="like">요약</span><h3>실패 맥락</h3><p>실패 직전 상태를 정리한 파일도 함께 남습니다.</p></div>
   </div>
   <p class="muted small">Phase 7에서 GitHub가 검사를 자동 실행하게 되면, 이 증거들이 인터넷에서 내려받을 수 있는 파일로 올라갑니다.</p>

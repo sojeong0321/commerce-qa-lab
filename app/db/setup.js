@@ -6,7 +6,7 @@ const { DB_PATH } = require('../config');
 const db = openDatabase(DB_PATH);
 resetDatabase(db);
 
-const tables = ['users', 'products', 'coupons', 'user_coupons', 'cart_items', 'orders'];
+const tables = ['users', 'products', 'coupons', 'user_coupons', 'cart_items', 'orders', 'order_items'];
 console.log(`DB 초기화 완료: ${DB_PATH}`);
 for (const table of tables) {
   const { count } = db.prepare(`SELECT COUNT(*) AS count FROM ${table}`).get();

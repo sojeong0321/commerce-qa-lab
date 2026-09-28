@@ -21,7 +21,7 @@ function renderRow(item) {
     : `<p class="row-warning">${item.status !== 'ACTIVE' ? '판매 중지된 상품입니다' : `재고가 ${item.stock}개 남았습니다`}</p>`;
   return `
     <tr data-product-id="${escapeHtml(item.productId)}" data-testid="cart-row-${escapeHtml(item.productId)}">
-      <th scope="row">${escapeHtml(item.name)}${soldOutNote}</th>
+      <th scope="row"><span class="item-name">${escapeHtml(item.name)}</span>${soldOutNote}</th>
       <td class="num">${formatWon(item.price)}</td>
       <td>
         <form class="qty-form" novalidate>
@@ -147,7 +147,7 @@ container.addEventListener('submit', (event) => {
   const form = event.target;
   const productId = productIdOf(form);
   const quantity = Number(form.elements.quantity.value);
-  const name = form.closest('tr').querySelector('th').textContent;
+  const name = form.closest('tr').querySelector('.item-name').textContent;
 
   runAction(async () => {
     await api('PATCH', `/api/cart/items/${productId}`, { quantity });
@@ -172,7 +172,7 @@ container.addEventListener('click', (event) => {
 
   if (target.classList.contains('remove-button')) {
     const productId = productIdOf(target);
-    const name = target.closest('tr').querySelector('th').textContent;
+    const name = target.closest('tr').querySelector('.item-name').textContent;
 
     runAction(async () => {
       await api('DELETE', `/api/cart/items/${productId}`);

@@ -2,7 +2,7 @@
   "name": "commerce-qa-lab",
   "version": "0.1.0",
   "private": true,
-  "description": "QA Automation portfolio: a small commerce app built to be tested. Unit + API tests now; Playwright E2E and GitHub Actions CI are the next phases.",
+  "description": "QA Automation portfolio: a small commerce app built to be tested — 205 automated tests (unit, API, Playwright E2E) running in GitHub Actions CI.",
   "type": "commonjs",
   "engines": {
     "node": ">=22"
@@ -16,7 +16,8 @@
     "test": "npm run test:unit && npm run test:api && npm run test:e2e",
     "test:e2e": "PLAYWRIGHT_HTML_OUTPUT_DIR=playwright-report/e2e playwright test --project=e2e",
     "report:api": "playwright show-report playwright-report/api",
-    "report:e2e": "playwright show-report playwright-report/e2e"
+    "report:e2e": "playwright show-report playwright-report/e2e",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",
@@ -24,6 +25,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.3",
     "typescript": "^7.0.2"
   }
 }

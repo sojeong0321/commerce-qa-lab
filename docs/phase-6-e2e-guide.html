@@ -38,7 +38,7 @@
       </tbody>
     </table>
   </div>
-  <p class="callout"><b>왜 5가지뿐인가?</b> 재고를 0개로 바꿔 보거나 수량에 "abc"를 넣어 보는 식의 경우의 수는 이미 <a href="phase-5-api-automation-guide.html">API 검사 73개</a>가 맡고 있습니다. 브라우저 검사는 느리기 때문에 <mark>"손님이 화면에서 목표를 끝까지 달성할 수 있는가"</mark>만 확인합니다. 이게 테스트 피라미드의 핵심입니다.</p>
+  <p class="callout"><b>왜 5가지뿐인가?</b> 재고를 0개로 바꿔 보거나 수량에 "abc"를 넣어 보는 식의 경우의 수는 이미 <a href="phase-5-api-automation-guide.html">API 검사</a>가 맡고 있습니다. 브라우저 검사는 느리기 때문에 <mark>"손님이 화면에서 목표를 끝까지 달성할 수 있는가"</mark>만 확인합니다. 이게 테스트 피라미드의 핵심입니다.</p>
 </section>
 
 <section>
@@ -103,26 +103,26 @@
   <div class="ev">
     <div class="evi"><span class="like">사진</span><h3>실패 순간 스크린샷</h3><p>손님이 무엇을 보고 있었는지 그대로 남습니다.</p></div>
     <div class="evi"><span class="like">블랙박스</span><h3>트레이스</h3><p>클릭 하나하나, 화면 변화, 주고받은 데이터를 되감아 볼 수 있습니다.</p></div>
-    <div class="evi"><span class="like">성적표</span><h3>HTML 보고서</h3><p><code>npm run report</code>로 브라우저에서 엽니다.</p></div>
+    <div class="evi"><span class="like">성적표</span><h3>HTML 보고서</h3><p><code>npm run report:e2e</code>로 브라우저에서 엽니다.</p></div>
   </div>
 </section>
 
 <section>
   <span class="label">지금 상태</span>
-  <h2>자동 검사 205개</h2>
+  <h2>자동 검사 206개</h2>
   <div class="counts">
     <div><b>125</b><span>부품·서버 검사</span></div>
-    <div><b>73</b><span>API 검사</span></div>
+    <div><b>74</b><span>API 검사</span></div>
     <div><b>7</b><span>브라우저 검사 (여정 5가지)</span></div>
   </div>
-  <pre class="cmd">npm test          # 205개 전부 실행
+  <pre class="cmd">npm test          # 206개 전부 실행
 npm run test:e2e  # 브라우저 검사만
-npm run report    # 결과 보고서 열기</pre>
+npm run report:e2e # 결과 보고서 열기</pre>
   <p class="muted small">브라우저 검사 7개는 여정 5가지를 담고 있습니다(E2E-004가 상황별로 3개로 나뉩니다). 검사가 실행될 때 브라우저 창은 뜨지 않습니다. 화면 없이 도는 모드라 빠릅니다.</p>
 </section>
 
 <footer>
-  다음은 <b>Phase 7 · 자동 실행(CI)</b>입니다. 코드를 GitHub에 올릴 때마다 이 205개가 자동으로 실행되게 만듭니다. 전체 진행 상황은 <a href="index.html">진행 현황</a>에서 볼 수 있습니다.
+  다음은 <b>Phase 7 · 자동 실행(CI)</b>입니다. 코드를 GitHub에 올릴 때마다 이 검사들이 자동으로 실행되게 만듭니다. 전체 진행 상황은 <a href="index.html">진행 현황</a>에서 볼 수 있습니다.
 </footer>
 
 </div>

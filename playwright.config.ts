@@ -35,11 +35,15 @@ export default defineConfig({
     {
       name: 'api',
       testDir: './tests/api',
+      // 프로젝트마다 결과 폴더를 나눈다. 같은 폴더를 쓰면 뒤에 실행한 프로젝트가
+      // 앞 프로젝트의 실패 증거(트레이스·스크린샷)를 지워 버린다.
+      outputDir: './test-results/api',
     },
     {
       // 실제 브라우저로 사용자 여정을 확인한다. 화면이 없는 API 테스트와 분리해서 따로 돌릴 수 있다.
       name: 'e2e',
       testDir: './tests/e2e',
+      outputDir: './test-results/e2e',
       use: { ...devices['Desktop Chrome'] },
     },
   ],

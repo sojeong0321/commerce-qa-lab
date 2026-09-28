@@ -6,8 +6,7 @@ function notFoundHandler(req, res) {
   });
 }
 
-// Express는 인자가 4개인 함수를 에러 핸들러로 인식한다.
-// eslint-disable-next-line no-unused-vars
+// Express는 인자가 4개인 함수를 에러 핸들러로 인식한다. (next를 쓰지 않아도 생략하면 안 된다)
 function errorHandler(err, req, res, next) {
   if (err instanceof AppError) {
     return res.status(err.status).json({ error: { code: err.code, message: err.message } });

@@ -3,7 +3,7 @@
 > 테스트하기 위해 직접 만든 작은 커머스 서비스, 그리고 그 서비스를 검증하는 자동화 테스트.
 > Manual QA에서 QA Automation으로 전환하며 만든 포트폴리오입니다.
 
-**현재 상태:** Phase 9까지 완료 · 자동 테스트 **205개** 통과 (Unit 125 + API 73 + E2E 7) · GitHub Actions CI 동작
+**현재 상태:** Phase 0–10 전체 완료 · 자동 테스트 **206개** 통과 (Unit 125 + API 74 + E2E 7) · GitHub Actions CI 동작
 이 문서는 **지금 실제로 동작하는 것만** 적습니다.
 
 ---
@@ -25,10 +25,11 @@ npm install         # 준비물 설치 (Node 22 이상)
 npm run db:setup    # 데이터베이스 생성 + 초기 데이터
 npm start           # http://localhost:3000 에서 쇼핑몰 열기
 
-npm test            # 전체 테스트 (Unit 125 + API 73 + E2E 7)
+npm test            # 전체 테스트 (Unit 125 + API 74 + E2E 7)
 npm run test:unit   # 단위/서비스 테스트만
 npm run test:api    # API 테스트만 (서버는 테스트가 알아서 띄웁니다)
 npm run test:e2e    # 실제 브라우저 E2E 테스트만
+npm run typecheck   # TypeScript 타입 검사
 npm run report:e2e  # E2E HTML 리포트 열기 (report:api 도 있습니다)
 ```
 
@@ -40,16 +41,16 @@ npm run report:e2e  # E2E HTML 리포트 열기 (report:api 도 있습니다)
 
 ```
         ▲  E2E 7개 (여정 5)     실제 브라우저로 핵심 사용자 여정만
-      ▲▲▲  API 73개             비즈니스 규칙과 엣지 케이스
+      ▲▲▲  API 74개             비즈니스 규칙과 엣지 케이스
     ▲▲▲▲▲  Unit/서비스 125개    금액 계산, 입력 검증, 상태 전이
 ```
 
 | 레이어 | 개수 | 도구 | 무엇을 검증하나 |
 |---|---|---|---|
 | Unit (순수 함수) | 38 | `node:test` | 금액 계산, 경계값(29,999 / 30,000 / 30,001), 입력 검증 |
-| 서비스 + DB | 57 | `node:test` + in-memory SQLite | 재고·쿠폰·주문 상태 전이, 트랜잭션 롤백 |
-| HTTP 스모크 | 30 | `node:test` | 인증 401, 에러 코드 전달, 응답 형식 |
-| API | 73 | Playwright | 실제 서버 대상 비즈니스 규칙 + 상태 부작용 검증 |
+| 서비스 + DB | 55 | `node:test` + in-memory SQLite | 재고·쿠폰·주문 상태 전이, 트랜잭션 롤백 |
+| HTTP 계약 | 32 | `node:test` | 인증 401, 에러 코드 전달, 응답 형식 |
+| API | 74 | Playwright | 실제 서버 대상 비즈니스 규칙 + 상태 부작용 검증 (동시 주문 포함) |
 | E2E | 7 | Playwright (Chromium) | 실제 브라우저로 5개 사용자 여정. 화면 표시와 서버 상태를 함께 확인 |
 
 **API와 E2E를 나눈 이유:** 브라우저로 모든 경우를 검증하면 느리고, 화면 변화에 취약해 자주 깨집니다. 규칙과 엣지 케이스는 빠른 API 테스트가 맡고, E2E는 "사용자가 화면에서 목표를 달성할 수 있는가"만 검증합니다.
@@ -60,7 +61,7 @@ npm run report:e2e  # E2E HTML 리포트 열기 (report:api 도 있습니다)
 
 - **부작용까지 검증한다.** 상태 코드만 보지 않고 재고·쿠폰·장바구니·주문 내역을 조회 API로 다시 확인합니다. 실패 케이스에서는 "아무것도 변하지 않았는가"를 확인합니다.
 - **테스트 격리.** 모든 테스트는 시작 전에 DB를 초기 상태로 되돌립니다. 3회 연속 실행, 파일 단독 실행, 샤드 분할 실행으로 순서 의존이 없음을 확인했습니다.
-- **테스트가 실제로 버그를 잡는지 확인한다.** 코드를 일부러 망가뜨려 테스트가 실패하는지 검증했습니다(변이 테스트). 이 과정에서 "77개가 통과하는데 6가지 버그를 못 잡는" 상태를 발견하고 테스트를 보강했습니다 → [중간 점검 기록](docs/phase-4-5-review-guide.html)
+- **테스트가 실제로 버그를 잡는지 확인한다.** 코드를 일부러 망가뜨려 테스트가 실패하는지 검증했습니다(변이 테스트). 이 과정에서 "77개가 통과하는데 9종의 결함을 못 잡는" 상태를 발견하고 테스트를 보강했습니다 → [중간 점검 기록](docs/phase-4-5-review-guide.html)
 - **안정적인 로케이터.** `getByRole` → `getByLabel` → `getByTestId` 순으로 사용하고, 고정 대기(`waitForTimeout`)와 XPath는 쓰지 않습니다. 목록 안 요소는 카드/행으로 범위를 좁혀 찾습니다.
 - **재시도로 감추지 않는다.** `retries: 0`. 불안정한 테스트는 원인을 고칩니다. 그래서 트레이스는 `retain-on-failure`로 남깁니다.
 - **테스트 전용 API는 테스트 환경에서만 존재한다.** `POST /api/test/reset`은 `NODE_ENV=test`에서만 등록되며, 다른 환경에서 404인지 확인하는 테스트가 있습니다.
@@ -69,10 +70,11 @@ npm run report:e2e  # E2E HTML 리포트 열기 (report:api 도 있습니다)
 
 ## 실패하면 남는 것
 
-API 테스트가 실패하면 자동으로 다음이 생성됩니다.
+테스트가 실패하면 자동으로 다음이 생성됩니다.
 
 - `playwright-report/api`, `playwright-report/e2e` — HTML 리포트 (`npm run report:api` / `report:e2e`)
-- `test-results/**/test-failed-1.png` — E2E 실패 시점 스크린샷
+- `test-results/api/**`, `test-results/e2e/**` — 프로젝트별로 분리 보관 (뒤 실행이 앞 증거를 지우지 않도록)
+- `test-results/e2e/**/test-failed-1.png` — E2E 실패 시점 스크린샷
 - `test-results/**/trace.zip` — 요청과 응답이 기록된 트레이스 (`npx playwright show-trace <경로>`)
 - `test-results/**/error-context.md` — 실패 시점 요약
 
@@ -84,10 +86,10 @@ API 테스트가 실패하면 자동으로 다음이 생성됩니다.
 
 ```
 checkout → Node 22 → npm ci → 브라우저 설치 → DB 준비 확인
-  → Unit(125) → API(73) → E2E(7) → 리포트/실패 증거 업로드
+  → Unit(125) → API(74) → E2E(7) → 리포트/실패 증거 업로드
 ```
 
-- 순차 실행(fail-fast): 앞 단계가 실패하면 뒤 단계를 돌리지 않고 workflow가 실패합니다.
+- 앞 단계가 실패해도 모든 레이어를 실행합니다(`if: ${{ !cancelled() }}`). 어느 레이어까지 영향받았는지 한 번에 파악하고 E2E 실패 증거를 확보하기 위해서입니다. 하나라도 실패하면 workflow가 실패합니다.
 - 리포트는 성공·실패와 무관하게 업로드하고, 스크린샷·트레이스는 실패했을 때만 업로드합니다.
 
 ---
@@ -159,7 +161,7 @@ playwright.config.ts
 | 7 | GitHub Actions CI | 완료 |
 | 8 | 실패 증거 / 리포팅 | 완료 |
 | 9 | 문서 정리 | 완료 |
-| 10 | 최종 회귀 / 코드 리뷰 | 예정 |
+| 10 | 최종 회귀 / 코드 리뷰 (15건 수정) | 완료 |
 
 ---
 
@@ -177,6 +179,7 @@ HTML 파일이라 GitHub에서는 소스로 보입니다. 저장소를 내려받
 - `docs/phase-7-ci-guide.html` — GitHub Actions CI (성공·실패 양쪽 검증)
 - `docs/phase-8-evidence-guide.html` — 실패 증거
 - `docs/phase-9-documentation-guide.html` — 문서 정리
+- `docs/phase-10-final-review-guide.html` — **최종 점검**: 완성 선언 후 발견한 15건
 
 ### 상세 문서 (Markdown)
 

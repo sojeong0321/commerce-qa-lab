@@ -48,4 +48,6 @@ function insertSeed(db) {
   for (const uc of userCoupons) insertUserCoupon.run(uc.id, uc.userId, uc.couponId);
 }
 
-module.exports = { users, products, coupons, userCoupons, insertSeed };
+// 테스트는 이 값을 직접 쓰지 않고 tests/support/test-data.ts에 별도로 적어 둔다.
+// (seed가 잘못 바뀌면 테스트가 함께 따라가 버려 오류를 잡지 못하기 때문)
+module.exports = { insertSeed };

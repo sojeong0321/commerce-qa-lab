@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 10 · 최종 점검</title>
+<link rel="stylesheet" href="guide.css">
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="crumbs">
+    <a href="index.html">진행 현황</a><span>·</span>
+    <a href="phase-9-documentation-guide.html">Phase 9</a><span>·</span>
+    <span>Phase 10</span>
+  </div>
+  <span class="label">Phase 10 · 완료 · 프로젝트 종료</span>
+  <h1>다 끝났다고 생각한 뒤에 15가지를 더 찾았다</h1>
+  <p class="lead">마지막 점검에서 가장 뼈아픈 것이 나왔습니다. Phase 8에서 "실패 증거를 남긴다"고 적어 둔 바로 그 기능이, 실제로는 증거를 지우고 있었습니다.</p>
+  <div class="oneline">
+    한 줄 요약: <strong>검사 206개 통과</strong>로 프로젝트를 마칩니다. 마지막 점검에서 <strong>반드시 고쳐야 할 5건</strong>을 포함해 15가지를 수정했습니다.
+  </div>
+</header>
+
+<section>
+  <span class="label">가장 중요한 발견</span>
+  <h2>증거를 남기는 기능이 증거를 지우고 있었다</h2>
+  <div class="bug">
+    <span class="found">최종 점검에서 발견</span>
+    <h3>E2E 검사가 시작되면서 API 검사의 증거를 삭제했다</h3>
+    <p>검사 결과물은 모두 같은 폴더에 저장되는데, Playwright는 실행을 시작할 때 그 폴더를 비웁니다. 즉 <b>API 검사가 실패해 증거를 남겨도, 바로 뒤이어 실행되는 E2E 검사가 그것을 지워 버렸습니다.</b></p>
+    <p>확인 방법: API 실패 증거를 흉내 낸 파일을 두고 E2E를 실행했더니 사라졌습니다.</p>
+    <p><b>고친 방법:</b> 검사 종류별로 결과 폴더를 나눴습니다(<code>test-results/api</code>, <code>test-results/e2e</code>). 보고서는 이미 나눠 두었는데 증거 폴더를 빠뜨렸던 것입니다.</p>
+    <p><b>왜 중요한가:</b> Phase 8 문서에는 "모든 레이어의 증거를 확보한다"고 적혀 있었습니다. <mark>문서가 사실이 아닌 상태</mark>였고, 면접에서 "CI에서 실패한 API 트레이스를 보여 달라"는 요청이 오면 바로 드러났을 문제입니다.</p>
+  </div>
+</section>
+
+<section>
+  <span class="label">반드시 고쳐야 했던 것</span>
+  <h2>5건</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>문제</th><th>영향</th><th>조치</th></tr></thead>
+      <tbody>
+        <tr><td>API 실패 증거가 E2E 실행으로 삭제됨</td><td>Phase 8 문서 내용이 사실과 달랐음</td><td>검사 종류별 결과 폴더 분리</td></tr>
+        <tr><td>README가 CI 동작을 <b>반대로</b> 설명</td><td>채용 담당자가 설정 파일을 열면 바로 모순 발견</td><td>실제 동작에 맞게 수정</td></tr>
+        <tr><td>저장소 설명이 5단계 전 내용</td><td>"E2E와 CI는 다음 단계"라고 적혀 있었음</td><td>완성된 프로젝트 설명으로 교체</td></tr>
+        <tr><td>품절 경고 문구가 안내 메시지에 섞임</td><td>"러닝화재고가 0개 남았습니다을(를) 삭제했습니다"</td><td>상품명을 별도 요소로 분리 + 회귀 테스트 추가</td></tr>
+        <tr><td>타입 검사 명령이 아예 실행 불가</td><td>설정만 있고 한 번도 동작한 적 없음</td><td>필요한 패키지 추가, 설정 수정, <code>npm run typecheck</code> 추가</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <span class="label">함께 고친 것</span>
+  <h2>10건</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>분류</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td>의미 없는 검사</td><td>"장바구니가 비었다" 확인이 HTML에 박힌 <code>0</code>과 비교하고 있어 <b>항상 통과</b>했습니다. 서버 상태 확인을 추가하고 초기 표시를 <code>–</code>로 바꿨습니다</td></tr>
+        <tr><td>문서에만 있던 주장</td><td>"동시 주문을 확인했다"는 서술에 해당하는 테스트가 없어서, 실제 동시 요청 테스트를 추가했습니다</td></tr>
+        <tr><td>이름과 내용 불일치</td><td>테스트 이름이 실제 검증 내용과 다른 것 2건 수정</td></tr>
+        <tr><td>숫자 불일치</td><td>문서마다 다르던 변이 테스트 개수(6 vs 9)와 파일별 테스트 수를 실측값으로 통일</td></tr>
+        <tr><td>없는 명령어 안내</td><td><code>npm run report</code>는 존재하지 않는데 두 문서가 안내하고 있었습니다</td></tr>
+        <tr><td>매직 넘버</td><td>E2E에 하드코딩된 재고 숫자를 상수로 (프로젝트 자체 규칙 위반이었음)</td></tr>
+        <tr><td>범위 좁히기 누락</td><td>Page Object 한 곳이 행 범위를 좁히지 않고 화면 전체에서 찾고 있었습니다</td></tr>
+        <tr><td>죽은 코드</td><td>쓰이지 않는 내보내기, 존재하지 않는 도구용 주석, 참조되지 않는 이미지 정리</td></tr>
+        <tr><td>타입 느슨함</td><td>테스트 헬퍼 3곳의 <code>any</code> 제거</td></tr>
+        <tr><td>초기화 검증 누락</td><td><code>db:setup</code>이 테이블 7개 중 6개만 확인하고 있었습니다</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <span class="label">최종 확인</span>
+  <h2>수정 후 전체 재검증</h2>
+  <div class="counts">
+    <div><b>206</b><span>자동 검사 (모두 통과)</span></div>
+    <div><b>3회</b><span>연속 실행 통과</span></div>
+    <div><b>0</b><span>고정 대기 · XPath · 건너뛴 검사</span></div>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>확인 항목</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>부품·서버 검사 125 / API 74 / 브라우저 7</td><td class="ok">전부 통과</td></tr>
+        <tr><td>타입 검사</td><td class="ok">통과 (이번에 처음 동작)</td></tr>
+        <tr><td>변이 테스트 재실행</td><td class="ok">3종 전부 검출 (새로 고친 화면 버그 포함)</td></tr>
+        <tr><td>설계서가 약속한 산출물 13종</td><td class="ok">전부 존재</td></tr>
+        <tr><td>GitHub 자동 검사</td><td class="ok">통과</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <span class="label">설계 vs 실제</span>
+  <h2>처음 계획과 무엇이 달라졌나</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>항목</th><th>Phase 0 설계</th><th>최종 결과</th></tr></thead>
+      <tbody>
+        <tr><td>부품 검사</td><td>약 15개</td><td><b>125개</b> — 경계값과 되돌리기 검사를 넣으며 늘어남</td></tr>
+        <tr><td>API 검사</td><td>약 30개</td><td><b>74개</b> — 실패마다 상태 불변 확인을 추가</td></tr>
+        <tr><td>E2E 여정</td><td>5가지</td><td><b>5가지</b> (테스트 7개) — 계획대로</td></tr>
+        <tr><td>CI 실행 방식</td><td>실패 시 즉시 중단</td><td><b>모든 레이어 실행</b> — 증거 수집을 위해 변경</td></tr>
+        <tr><td>쿠폰 취소 정책</td><td>"정하고 테스트 가능하게"</td><td>취소 시 복구 → 재사용 가능</td></tr>
+        <tr><td>기술 스택</td><td>Express·SQLite·Playwright·TypeScript</td><td>동일 — 추가한 것 없음</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="callout">검사 개수가 계획의 5배가 된 것은 <b>계획이 틀려서가 아니라 검증하면서 배웠기 때문</b>입니다. "상품 2개 이상 주문 성공 케이스가 없어서 반복 처리의 첫 항목만 검사되고 있었다" 같은 사실은 실제로 코드를 망가뜨려 보기 전에는 알 수 없었습니다.</p>
+</section>
+
+<section>
+  <span class="label">돌아보며</span>
+  <h2>이 프로젝트가 보여 주는 것</h2>
+  <div class="rules">
+    <div class="rule"><h3>통과 개수는 품질이 아니다</h3><p>77개가 통과하는데 9종의 결함을 못 잡던 시점이 있었습니다. 검사가 제 역할을 하는지는 망가뜨려 봐야 압니다.</p></div>
+    <div class="rule"><h3>결과가 아니라 뒷정리까지 본다</h3><p>"거절됐다"만 확인하면 절반입니다. 재고·쿠폰·장바구니가 그대로인지까지 봐야 합니다.</p></div>
+    <div class="rule"><h3>검사하기 좋게 만드는 것도 일이다</h3><p>화면 요소의 이름, 경계값이 나오는 초기 데이터, 초기화 기능을 설계 단계에서 준비했습니다.</p></div>
+    <div class="rule"><h3>문서는 검증 대상이다</h3><p>최종 점검에서 나온 문제의 절반이 "문서가 사실과 다름"이었습니다.</p></div>
+    <div class="rule"><h3>실수도 기록한다</h3><p>되돌리기 명령으로 작업을 날린 일, 증거가 안 남던 일까지 남겼습니다.</p></div>
+    <div class="rule policy"><h3>끝났다고 생각할 때 한 번 더</h3><p>"완성"이라고 선언한 뒤의 점검에서 가장 중요한 문제가 나왔습니다.</p></div>
+  </div>
+</section>
+
+<footer>
+  프로젝트를 마칩니다. 전체 요약은 <a href="index.html">진행 현황</a>, 저장소 첫 화면 설명은 <b>README.md</b>, 상세 문서는 <code>docs/</code> 폴더의 test-strategy · test-cases · architecture · defect-examples에 있습니다.
+</footer>
+
+</div>
+</body>
+</html>

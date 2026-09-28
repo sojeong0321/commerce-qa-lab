@@ -1,9 +1,10 @@
+import { APIRequestContext } from '@playwright/test';
 import { test, expect } from '../support/fixtures';
 import { addToCart, asUser, expectError, getCart, getCouponStatus, getOrders, getStock, placeOrder } from '../support/api';
 import { COUPONS, MISSING, PRODUCTS, USERS } from '../support/test-data';
 
 const { mug, jeans, shoes, inactive } = PRODUCTS;
-const order = (request: any, userId: number, couponCode?: string) =>
+const order = (request: APIRequestContext, userId: number, couponCode?: string) =>
   request.post('/api/orders', { headers: asUser(userId), data: couponCode ? { couponCode } : {} });
 
 test.describe('주문 생성', () => {
@@ -167,20 +168,38 @@ test.describe('주문이 거절되는 경우', () => {
   });
 });
 
+test.describe('동시 주문', () => {
+  test('두 손님이 마지막 재고를 동시에 주문하면 한 명만 성공한다', async ({ request }) => {
+    await addToCart(request, USERS.alice, shoes.id, shoes.stock);
+    await addToCart(request, USERS.bob, shoes.id, shoes.stock);
+
+    // 두 요청을 동시에 보낸다
+    const [aliceRes, bobRes] = await Promise.all([order(request, USERS.alice), order(request, USERS.bob)]);
+
+    const statuses = [aliceRes.status(), bobRes.status()].sort();
+    expect(statuses).toEqual([201, 409]); // 한쪽은 성공, 한쪽은 재고 부족
+    expect(await getStock(request, shoes.id)).toBe(0); // 음수가 되지 않는다
+    expect((await getOrders(request, USERS.alice)).length + (await getOrders(request, USERS.bob)).length).toBe(1);
+  });
+});
+
 test.describe('주문 기록', () => {
-  test('주문에는 그 시점의 상품 이름과 가격이 남는다', async ({ request }) => {
+  test('주문 항목에 그 시점의 상품 이름과 가격이 저장된다', async ({ request }) => {
     await addToCart(request, USERS.alice, jeans.id, 1);
     const created = await placeOrder(request, USERS.alice);
 
-    // 주문 뒤에 상품 정보가 바뀌어도(=판매 중지) 주문 기록은 그대로여야 한다
+    // 주문 이후 상품 가격이 바뀌어도 기록이 유지되는지는
+    // 상품 정보를 직접 수정할 수 있는 서비스 테스트에서 확인한다.
+    // (tests/unit/order-rules.test.js '주문 상품은 주문 시점의 이름과 가격을 저장한다')
     const detail = await (await request.get(`/api/orders/${created.id}`, { headers: asUser(USERS.alice) })).json();
 
     expect(detail.items[0]).toMatchObject({ productName: jeans.name, unitPrice: jeans.price });
     expect(detail.totalAmount).toBe(jeans.price);
   });
 
-  test('판매 중지된 상품이 장바구니에 있으면 주문할 수 없다', async ({ request }) => {
-    // 판매 중지 상품은 애초에 담기지 않는다 (규칙의 앞단에서 막힘)
+  test('판매 중지 상품은 장바구니에 담는 단계에서 막힌다', async ({ request }) => {
+    // 담은 뒤에 판매 중지된 경우의 주문 거절은 서비스 테스트에서 확인한다.
+    // (tests/unit/order-rules.test.js 'BR-O2: 주문 전에 판매 중지된 상품이...')
     const res = await request.post('/api/cart/items', {
       headers: asUser(USERS.alice),
       data: { productId: inactive.id, quantity: 1 },

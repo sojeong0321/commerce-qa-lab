@@ -1,9 +1,10 @@
+import { APIRequestContext } from '@playwright/test';
 import { test, expect } from '../support/fixtures';
 import { addToCart, asUser, expectError, getCouponStatus, getStock, placeOrder } from '../support/api';
 import { COUPONS, MISSING, PRODUCTS, USERS } from '../support/test-data';
 
 const { mug, jeans, shoes } = PRODUCTS;
-const cancel = (request: any, userId: number, orderId: number) =>
+const cancel = (request: APIRequestContext, userId: number, orderId: number) =>
   request.post(`/api/orders/${orderId}/cancel`, { headers: asUser(userId) });
 
 test.describe('주문 취소', () => {

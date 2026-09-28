@@ -12,13 +12,14 @@ export class CartPage {
     return this.page.getByRole('row', { name: new RegExp(productName) });
   }
 
-  async changeQuantity(productName: string, quantity: number) {
-    await this.page.getByLabel(`${productName} 수량`).fill(String(quantity));
-    await this.row(productName).getByRole('button', { name: '변경' }).click();
+  quantityInput(productName: string): Locator {
+    // 목록 안의 요소는 행 범위로 좁혀서 찾는다.
+    return this.row(productName).getByLabel(`${productName} 수량`);
   }
 
-  quantityInput(productName: string): Locator {
-    return this.page.getByLabel(`${productName} 수량`);
+  async changeQuantity(productName: string, quantity: number) {
+    await this.quantityInput(productName).fill(String(quantity));
+    await this.row(productName).getByRole('button', { name: '변경' }).click();
   }
 
   async remove(productName: string) {

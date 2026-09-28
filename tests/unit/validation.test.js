@@ -12,8 +12,23 @@ test('validateQuantity: 1 이상의 정수는 통과한다', () => {
 });
 
 // 동등 분할: 0, 음수, 소수, 문자열, 빈 값, 숫자가 아닌 값
-for (const invalid of [0, -1, 1.5, '1', 'abc', null, undefined, NaN, Infinity, [], {}]) {
-  test(`validateQuantity: ${JSON.stringify(invalid) ?? String(invalid)} 는 거절한다`, () => {
+// 라벨을 직접 붙인다. JSON.stringify는 NaN·Infinity·undefined를 모두 "null"로 만들어
+// 서로 다른 입력이 같은 이름의 테스트로 보이게 한다.
+const invalidQuantities = [
+  ['0', 0],
+  ['-1', -1],
+  ['소수 1.5', 1.5],
+  ['문자열 "1"', '1'],
+  ['문자열 "abc"', 'abc'],
+  ['null', null],
+  ['undefined', undefined],
+  ['NaN', NaN],
+  ['Infinity', Infinity],
+  ['배열', []],
+  ['객체', {}],
+];
+for (const [label, invalid] of invalidQuantities) {
+  test(`validateQuantity: ${label} 는 거절한다`, () => {
     assertValidationError(() => validateQuantity(invalid));
   });
 }

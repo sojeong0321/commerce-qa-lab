@@ -1,9 +1,10 @@
+import { APIRequestContext } from '@playwright/test';
 import { test, expect } from '../support/fixtures';
 import { addToCart, asUser, expectError, getCouponStatus, placeOrder } from '../support/api';
 import { COUPONS, MISSING, PRODUCTS, USERS } from '../support/test-data';
 
 const { mug, jeans, shoes } = PRODUCTS;
-const preview = (request: any, userId: number, couponCode?: string) =>
+const preview = (request: APIRequestContext, userId: number, couponCode?: string) =>
   request.post('/api/checkout/preview', {
     headers: asUser(userId),
     data: couponCode ? { couponCode } : {},
